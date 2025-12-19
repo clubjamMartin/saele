@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+// Note: Notification queue available at @/lib/notifications/queue
+// Use queueNotification() for custom email notifications (e.g., welcome emails, booking confirmations)
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);

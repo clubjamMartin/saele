@@ -88,11 +88,12 @@ Queue system for email notifications and magic links.
 - `payload` (jsonb): Additional data for notification template
 - `status` (text): Queue status - `'queued'`, `'sent'`, or `'failed'` (default: `'queued'`)
 - `attempts` (int): Number of send attempts (default: `0`)
+- `next_retry_at` (timestamptz): Timestamp when notification should be retried (exponential backoff)
 - `last_error` (text): Last error message if failed
 - `created_at` (timestamptz): Notification creation timestamp
 - `sent_at` (timestamptz): Timestamp when successfully sent
 
-**Purpose:** Manages notification delivery pipeline with retry logic and status tracking.
+**Purpose:** Manages notification delivery pipeline with retry logic and status tracking. Uses exponential backoff (60s, 5min) for automatic retries.
 
 **Relationships:**
 - Many-to-one with `auth.users` (user_id)
@@ -103,10 +104,38 @@ Queue system for email notifications and magic links.
 - `idx_notifications_recipient_email` on `recipient_email`
 - `idx_notifications_user_id` on `user_id`
 - `idx_notifications_booking_id` on `booking_id`
+- `idx_notifications_next_retry` on `next_retry_at` (for efficient queue polling)
 
 ---
 
-### 5. `event_logs`
+### 5. `notification_event_logs`
+Detailed event tracking for notification pipeline lifecycle.
+
+**Columns:**
+- `id` (uuid, PK): Unique event identifier
+- `notification_id` (uuid, FK): References `notifications(id)` (cascade delete)
+- `event_type` (text): Event type - `'queued'`, `'processing'`, `'sent'`, `'failed'`, `'retry_scheduled'`
+- `attempt_number` (int): Which attempt this event corresponds to (0-indexed)
+- `error_code` (text): Error code from Resend API (e.g., `'validation_error'`, `'application_error'`)
+- `error_message` (text): Detailed error message for debugging
+- `resend_email_id` (text): Email ID from Resend API for tracking
+- `response_metadata` (jsonb): Full API response or additional metadata
+- `created_at` (timestamptz): Event timestamp
+
+**Purpose:** Provides granular visibility into the notification pipeline lifecycle. Each state transition (queued → processing → sent/failed) is logged with full context for debugging and monitoring.
+
+**Relationships:**
+- Many-to-one with `notifications` (notification_id, cascade delete)
+
+**Indexes:**
+- `idx_notification_event_logs_notification_id` on `notification_id`
+- `idx_notification_event_logs_event_type` on `event_type`
+- `idx_notification_event_logs_created_at` on `created_at` (descending)
+- `idx_notification_event_logs_notif_created` on `(notification_id, created_at desc)` (composite)
+
+---
+
+### 6. `event_logs`
 Audit trail for webhooks, system events, and errors.
 
 **Columns:**
@@ -135,6 +164,166 @@ Audit trail for webhooks, system events, and errors.
 
 ---
 
+## Notification Pipeline Architecture
+
+The application includes a production-ready notification pipeline for reliable email delivery.
+
+### Overview
+
+The pipeline processes email notifications asynchronously using a queue-based architecture with automatic retry logic, detailed event tracking, and comprehensive monitoring.
+
+### Components
+
+1. **Notification Queue** (`notifications` table)
+   - Stores notifications to be processed
+   - Tracks status: `queued`, `sent`, `failed`
+   - Implements exponential backoff via `next_retry_at`
+
+2. **Event Logging** (`notification_event_logs` table)
+   - Records every state transition
+   - Stores error details and API responses
+   - Enables debugging and monitoring
+
+3. **Edge Function** (`process-notifications`)
+   - Serverless processor (Deno runtime)
+   - Fetches queued notifications
+   - Sends emails via Resend API
+   - Updates notification status
+   - Logs events
+
+4. **Scheduler** (pg_cron)
+   - Triggers Edge Function every minute
+   - Uses pg_net for HTTP requests
+   - Automatic execution without external services
+
+5. **Helper Functions**
+   - `queue_notification()` - Queue a notification
+   - `get_queued_notifications()` - Fetch ready notifications
+   - `update_notification_status()` - Update after send attempt
+   - `calculate_next_retry()` - Exponential backoff calculation
+
+6. **Admin Views**
+   - `notifications_dashboard_view` - Metrics by status
+   - `notification_queue_status` - Real-time queue health
+   - `failed_notifications_report` - Permanent failures
+   - `notification_processing_timeline` - Event timeline per notification
+   - `notification_error_summary` - Error patterns
+
+### Processing Flow
+
+```
+1. Application queues notification
+   ↓
+2. Notification inserted with status='queued'
+   ↓
+3. pg_cron triggers Edge Function (every minute)
+   ↓
+4. Edge Function fetches queued notifications
+   ↓
+5. For each notification:
+   - Log 'processing' event
+   - Send email via Resend
+   - On success: status='sent', log 'sent' event
+   - On failure: Retry with backoff or mark failed
+   ↓
+6. Admin views provide monitoring insights
+```
+
+### Retry Logic
+
+Exponential backoff strategy:
+- **Attempt 1:** Immediate (0 seconds)
+- **Attempt 2:** After 60 seconds (1 minute)
+- **Attempt 3:** After 300 seconds (5 minutes)
+- **After 3 attempts:** Permanent failure (`status='failed'`)
+
+**Retry criteria:**
+- Network errors: Retry
+- Application errors: Retry
+- Validation errors: No retry (immediate failure)
+
+### Usage Example
+
+**TypeScript (Application Code):**
+```typescript
+import { queueMagicLinkNotification, queueBookingConfirmation } from '@/lib/notifications/queue';
+
+// Queue magic link
+await queueMagicLinkNotification(
+  'user@example.com',
+  'https://app.saele.com/auth/callback?token=...'
+);
+
+// Queue booking confirmation
+await queueBookingConfirmation('guest@example.com', {
+  id: booking.id,
+  externalBookingId: 'BOOK-123',
+  checkIn: '2024-12-25',
+  checkOut: '2024-12-31',
+});
+```
+
+**SQL (Direct Queue):**
+```sql
+-- Queue a notification
+SELECT public.queue_notification(
+  p_type := 'magic_link',
+  p_recipient_email := 'user@example.com',
+  p_payload := '{"magic_link": "https://app.saele.com/link"}'::jsonb
+);
+```
+
+### Monitoring
+
+**Dashboard overview:**
+```sql
+SELECT * FROM public.notifications_dashboard_view;
+```
+
+**Queue health:**
+```sql
+SELECT * FROM public.notification_queue_status;
+```
+
+**Failed notifications:**
+```sql
+SELECT * FROM public.failed_notifications_report;
+```
+
+**Notification timeline:**
+```sql
+SELECT * FROM public.notification_processing_timeline
+WHERE notification_id = '<id>'
+ORDER BY event_created_at;
+```
+
+### Configuration
+
+**Required secrets (Supabase Vault):**
+- `RESEND_API_KEY` - Resend API key for sending emails
+- `EMAIL_FROM` - Sender email address (optional, defaults to `noreply@saele.com`)
+
+**Setup:**
+```bash
+# Set secrets
+supabase secrets set RESEND_API_KEY=re_xxxxxxxxxxxxx
+
+# Deploy Edge Function
+supabase functions deploy process-notifications
+
+# Verify cron job
+SELECT * FROM cron.job WHERE jobname = 'process-notifications-every-minute';
+```
+
+### Documentation
+
+- **[NOTIFICATION-TESTING.md](./NOTIFICATION-TESTING.md)** - Testing guide
+- **[DEPLOYMENT-NOTIFICATION-PIPELINE.md](./DEPLOYMENT-NOTIFICATION-PIPELINE.md)** - Deployment steps
+- **[NOTIFICATION-MONITORING.md](./NOTIFICATION-MONITORING.md)** - Monitoring and alerting
+- **[SECRETS-SETUP.md](./SECRETS-SETUP.md)** - Secrets configuration
+
+---
+
 ## Row Level Security (RLS) Policies
 
 RLS is enabled on all tables to enforce data isolation and access control.
@@ -147,6 +336,7 @@ RLS is enabled on all tables to enforce data isolation and access control.
 | `bookings` | Own only | ❌ | All | All | Bypass RLS |
 | `host_contacts` | Active only | ❌ | All | All | Bypass RLS |
 | `notifications` | ❌ | ❌ | All | All | Bypass RLS |
+| `notification_event_logs` | ❌ | ❌ | All | All | Bypass RLS |
 | `event_logs` | ❌ | ❌ | All | All | Bypass RLS |
 
 \* Guests can update their own `full_name` and `phone` but cannot change their `role`.
@@ -186,6 +376,12 @@ Used in RLS policies to check admin privileges.
 - **Guest**: No access
 - **Admin**: Full read/write access
 - **Service Role**: Bypasses RLS for automated notification processing
+
+#### Notification Event Logs
+- **Guest**: No access
+- **Admin**: Full read access (for monitoring and debugging)
+- **Service Role**: Insert access for automated event logging
+- **Purpose**: Tracks notification pipeline lifecycle events
 
 #### Event Logs
 - **Guest**: No access

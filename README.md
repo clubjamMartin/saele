@@ -270,6 +270,98 @@ await sendMagicLinkEmail('user@example.com', magicLink);
 - `RESEND_API_KEY` - Your Resend API key
 - `EMAIL_FROM` - Sender email address
 
+## 📬 Notification Pipeline
+
+The application includes a production-ready notification pipeline for reliable email delivery with automatic retries and comprehensive monitoring.
+
+### Features
+
+- ✅ **Automatic Retry Logic** - Exponential backoff (60s, 5min) for transient failures
+- ✅ **Queue Management** - PostgreSQL-based queue with pg_cron scheduling
+- ✅ **Event Tracking** - Detailed event logs for every notification lifecycle
+- ✅ **Admin Monitoring** - SQL views for real-time queue health and error analysis
+- ✅ **Idempotent Delivery** - Prevents duplicate emails on retry
+- ✅ **Secure Secrets** - API keys stored in Supabase Vault
+
+### Architecture
+
+The pipeline uses:
+- **Database Queue** - `notifications` table with status tracking
+- **Event Logs** - `notification_event_logs` for detailed audit trail
+- **Edge Function** - Serverless processor (`process-notifications`)
+- **pg_cron** - Automated scheduling (runs every minute)
+- **Resend API** - Email delivery with error handling
+
+### Usage
+
+Queue notifications using the TypeScript helper:
+
+```typescript
+import { queueMagicLinkNotification, queueBookingConfirmation } from '@/lib/notifications/queue';
+
+// Queue magic link email
+await queueMagicLinkNotification(
+  'user@example.com',
+  'https://app.saele.com/auth/callback?token=...'
+);
+
+// Queue booking confirmation
+await queueBookingConfirmation('guest@example.com', {
+  id: booking.id,
+  externalBookingId: 'BOOK-123',
+  checkIn: '2024-12-25',
+  checkOut: '2024-12-31',
+});
+```
+
+### Monitoring
+
+View queue health and metrics:
+
+```sql
+-- Dashboard overview
+SELECT * FROM public.notifications_dashboard_view;
+
+-- Queue status
+SELECT * FROM public.notification_queue_status;
+
+-- Failed notifications
+SELECT * FROM public.failed_notifications_report;
+
+-- Notification timeline
+SELECT * FROM public.notification_processing_timeline
+WHERE notification_id = '<id>';
+```
+
+### Documentation
+
+- **[NOTIFICATION-TESTING.md](./NOTIFICATION-TESTING.md)** - Comprehensive testing guide
+- **[DEPLOYMENT-NOTIFICATION-PIPELINE.md](./DEPLOYMENT-NOTIFICATION-PIPELINE.md)** - Deployment steps
+- **[NOTIFICATION-MONITORING.md](./NOTIFICATION-MONITORING.md)** - Monitoring and alerting
+- **[SECRETS-SETUP.md](./SECRETS-SETUP.md)** - Secrets configuration
+
+### Setup
+
+1. **Configure secrets:**
+   ```bash
+   supabase secrets set RESEND_API_KEY=re_xxxxxxxxxxxxx
+   ```
+
+2. **Apply migrations:**
+   ```bash
+   pnpm run db:reset
+   ```
+
+3. **Deploy Edge Function:**
+   ```bash
+   supabase functions deploy process-notifications
+   ```
+
+4. **Verify cron job:**
+   ```sql
+   SELECT * FROM cron.job WHERE jobname = 'process-notifications-every-minute';
+   ```
+
 ## 📈 Analytics
 
 PostHog analytics is integrated for event tracking and feature flags:
