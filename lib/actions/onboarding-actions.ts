@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { OnboardingData } from '@/lib/types/onboarding'
+import type { Json } from '@/lib/types/database.types'
 
 export async function completeOnboarding(data: OnboardingData) {
   const supabase = await createClient()
@@ -24,7 +25,7 @@ export async function completeOnboarding(data: OnboardingData) {
       full_name: data.fullName,
       avatar_url: data.avatarUrl,
       interests: data.interests,
-      notification_preferences: data.notificationPreferences,
+      notification_preferences: data.notificationPreferences as unknown as Json,
       onboarding_completed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
