@@ -6,7 +6,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import type { Database } from '@/lib/supabase/database.types'
+import type { Json } from '@/lib/supabase/database.types'
 
 // =====================================================
 // TYPES
@@ -15,7 +15,7 @@ import type { Database } from '@/lib/supabase/database.types'
 interface QueueNotificationParams {
   type: string
   recipientEmail: string
-  payload: Record<string, any>
+  payload: Record<string, Json>
   userId?: string
   bookingId?: string
 }
@@ -49,7 +49,7 @@ export async function queueNotification(
   const { data, error } = await supabase.rpc('queue_notification', {
     p_type: params.type,
     p_recipient_email: params.recipientEmail,
-    p_payload: params.payload as any,
+    p_payload: params.payload as Json,
     p_user_id: params.userId || null,
     p_booking_id: params.bookingId || null,
   })

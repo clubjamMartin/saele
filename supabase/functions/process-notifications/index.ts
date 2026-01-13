@@ -12,7 +12,7 @@ interface Notification {
   recipient_email: string
   user_id: string | null
   booking_id: string | null
-  payload: Record<string, any>
+  payload: Record<string, unknown>
   attempts: number
   last_error: string | null
   created_at: string
@@ -210,7 +210,7 @@ async function processNotification(notification: Notification): Promise<ProcessR
         headers: {
           'X-Entity-Ref-ID': notification.id,
         },
-      } as any
+      }
     )
 
     if (error) {
@@ -218,9 +218,6 @@ async function processNotification(notification: Notification): Promise<ProcessR
       
       // Determine if error is retryable
       const errorCode = resendError.name || 'unknown_error'
-      const isRetryable = errorCode === 'application_error' || 
-                          errorCode === 'network_error' ||
-                          errorCode === 'rate_limit_exceeded'
 
       return {
         notification_id: notification.id,
@@ -270,7 +267,7 @@ async function updateNotificationResult(result: ProcessResult) {
 // MAIN HANDLER
 // =====================================================
 
-Deno.serve(async (req) => {
+Deno.serve(async () => {
   try {
     console.log('Processing notification queue...')
 
