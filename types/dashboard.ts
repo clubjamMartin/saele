@@ -6,6 +6,7 @@
 export interface DashboardUser {
   id: string;
   email: string;
+  name: string | null; // alias for fullName, for compatibility
   fullName: string | null;
   phone: string | null;
   role: 'guest' | 'admin';
@@ -73,6 +74,15 @@ export interface DashboardInstagram {
   username: string;
   embedUrl: string;
   profileUrl: string;
+  latestPosts: any[]; // Instagram posts data
+}
+
+export interface DashboardService {
+  id: string;
+  name: string;
+  description: string | null;
+  status: 'active' | 'available' | 'unavailable';
+  icon?: string;
 }
 
 export interface DashboardMeta {
@@ -87,5 +97,6 @@ export interface DashboardResponse {
   countdown: DashboardCountdown | null;
   weather: DashboardWeather | null;
   instagram: DashboardInstagram;
+  services: DashboardService[];
   meta: DashboardMeta;
 }

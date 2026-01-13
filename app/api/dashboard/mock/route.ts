@@ -17,6 +17,7 @@ export async function GET() {
     user: {
       id: '00000000-0000-0000-0000-000000000001',
       email: 'guest@saele.com',
+      name: 'Maria Schmidt',
       fullName: 'Maria Schmidt',
       phone: '+43 660 1234567',
       role: 'guest',
@@ -151,7 +152,28 @@ export async function GET() {
       username: 'appartementschristine',
       embedUrl: 'https://www.instagram.com/appartementschristine/embed/',
       profileUrl: 'https://www.instagram.com/appartementschristine/',
+      latestPosts: [],
     },
+    services: [
+      {
+        id: '1',
+        name: 'Kühlschrank',
+        description: 'Kühlschrank mit frischen Lebensmitteln und Getränken bestücken lassen',
+        status: 'available',
+      },
+      {
+        id: '2',
+        name: 'Guide',
+        description: 'Persönlicher Guide für Wanderungen und Ausflüge',
+        status: 'available',
+      },
+      {
+        id: '3',
+        name: 'Kultur & Konzert',
+        description: 'Tickets für Kulturveranstaltungen und Konzerte',
+        status: 'active',
+      },
+    ],
     meta: {
       fetchedAt: new Date().toISOString(),
       responseTime: 100,

@@ -153,6 +153,7 @@ export async function GET() {
       user: {
         id: user.id,
         email: user.email || '',
+        name: profile.full_name,
         fullName: profile.full_name,
         phone: profile.phone,
         role: profile.role as 'guest' | 'admin',
@@ -175,7 +176,11 @@ export async function GET() {
       })),
       countdown,
       weather,
-      instagram,
+      instagram: {
+        ...instagram,
+        latestPosts: [],
+      },
+      services: [],
       meta: {
         fetchedAt: new Date().toISOString(),
         responseTime,

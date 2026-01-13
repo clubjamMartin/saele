@@ -1,0 +1,112 @@
+/* Dashboard Page Styles - Mobile-first responsive grid layout */
+
+/* Mobile-first layout (0-767px) */
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.875rem;
+  min-height: 100vh;
+}
+
+.welcomeSection,
+.countdownSection,
+.bookingSection,
+.newsSection,
+.servicesSection,
+.weatherSection,
+.actionsSection {
+  width: 100%;
+}
+
+/* Tablet layout (768-1199px) */
+@media (min-width: 768px) {
+  .dashboardContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    padding: 2.5rem 3.75rem;
+  }
+
+  .welcomeSection {
+    grid-column: 1 / 3;
+    grid-row: 1 / 2;
+  }
+
+  .countdownSection {
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
+  }
+
+  .bookingSection {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+  }
+
+  .newsSection {
+    grid-column: 2 / 3;
+    grid-row: 3 / 4;
+  }
+
+  .servicesSection {
+    grid-column: 1 / 2;
+    grid-row: 4 / 5;
+  }
+
+  .weatherSection {
+    grid-column: 2 / 3;
+    grid-row: 4 / 5;
+  }
+
+  .actionsSection {
+    grid-column: 1 / 3;
+    grid-row: 5 / 6;
+  }
+}
+
+/* Desktop layout (1200px+) */
+@media (min-width: 1200px) {
+  .dashboardContainer {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 1.25rem;
+    padding: 3.75rem 5rem;
+    max-width: 1920px;
+    margin: 0 auto;
+  }
+
+  .welcomeSection {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+
+  .countdownSection {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+  }
+
+  .bookingSection {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+  }
+
+  .newsSection {
+    grid-column: 2 / 3;
+    grid-row: 1 / 4;
+  }
+
+  .servicesSection {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+  }
+
+  .weatherSection {
+    grid-column: 3 / 4;
+    grid-row: 3 / 4;
+  }
+
+  .actionsSection {
+    grid-column: 1 / 4;
+    grid-row: 4 / 5;
+  }
+}

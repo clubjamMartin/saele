@@ -10,6 +10,13 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   
+  /* Saele Brand Colors */
+  --color-saele-primary: #861309;
+  --color-saele-primary-light: #DD8A90;
+  --color-saele-secondary: #4F5F3F;
+  --color-saele-secondary-light: #94A395;
+  --color-saele-background: #FFFBF7;
+  
   /* Primary brand colors */
   --color-primary-50: oklch(0.97 0.01 252);
   --color-primary-100: oklch(0.95 0.02 252);
@@ -86,6 +93,8 @@
   /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-josefin: var(--font-josefin);
+  --font-display: var(--font-josefin); /* Using Josefin Sans for headings */
   
   /* Border radius */
   --radius-sm: 0.25rem;

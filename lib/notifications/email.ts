@@ -26,14 +26,7 @@ export async function sendEmail({
   replyTo?: string;
 }) {
   try {
-    const emailOptions: {
-      from: string;
-      to: string | string[];
-      subject: string;
-      html?: string;
-      text?: string;
-      replyTo?: string;
-    } = {
+    const emailOptions: Record<string, any> = {
       from: EMAIL_FROM,
       to,
       subject,
@@ -43,7 +36,7 @@ export async function sendEmail({
     if (text) emailOptions.text = text;
     if (replyTo) emailOptions.replyTo = replyTo;
 
-    const { data, error } = await resend.emails.send(emailOptions);
+    const { data, error } = await resend.emails.send(emailOptions as any);
 
     if (error) {
       console.error('Failed to send email:', error);
