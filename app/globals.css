@@ -1,14 +1,21 @@
 @import "tailwindcss";
 
+/* Saele Design System Colors */
 :root {
-  --background: #ffffff;
+  --background: #fffbf7;
   --foreground: #171717;
+  --primary: #861309;
+  --primary-light: #dd8a90;
+  --secondary: #4f5f3f;
 }
 
 @theme inline {
   /* Base colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-secondary: var(--secondary);
   
   /* Primary brand colors */
   --color-primary-50: oklch(0.97 0.01 252);
@@ -123,4 +130,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
 }
