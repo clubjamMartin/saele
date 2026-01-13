@@ -362,6 +362,140 @@ WHERE notification_id = '<id>';
    SELECT * FROM cron.job WHERE jobname = 'process-notifications-every-minute';
    ```
 
+## 📊 Dashboard API
+
+The application includes a consolidated dashboard API endpoint that aggregates all necessary data for the guest dashboard in a single request.
+
+### Endpoint
+
+**`GET /api/dashboard`**
+
+Returns user information, bookings, host contacts, countdown to next check-in, weather forecast, and Instagram feed configuration.
+
+### Authentication
+
+Requires valid Supabase session (via cookie). Returns `401 Unauthorized` if not authenticated.
+
+### Response Structure
+
+```typescript
+{
+  user: {
+    id: string;
+    email: string;
+    fullName: string | null;
+    phone: string | null;
+    role: 'guest' | 'admin';
+  };
+  bookings: Array<{
+    id: string;
+    externalBookingId: string;
+    checkIn: string;
+    checkOut: string;
+    status: 'confirmed' | 'cancelled';
+    guestCount: number;
+    roomName: string; // e.g., "Adele", "Hedwig", "Christine"
+  }>;
+  hostContacts: Array<{
+    id: string;
+    displayName: string;
+    email: string | null;
+    phone: string | null;
+    whatsapp: string | null;
+  }>;
+  countdown: {
+    checkInDate: string; // ISO timestamp
+    checkOutDate: string; // ISO timestamp
+    months: number;
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    totalDays: number;
+    guestCount: number;
+    roomName: string;
+  } | null; // Null if no upcoming bookings
+  weather: {
+    location: string; // "Bezau, Vorarlberg, Austria"
+    latitude: number;
+    longitude: number;
+    current: {
+      temperature: number; // °C
+      weatherCode: number;
+      weatherDescription: string;
+      windSpeed: number; // km/h
+      windDirection: number;
+    };
+    forecast: Array<{
+      date: string; // YYYY-MM-DD
+      temperatureMax: number;
+      temperatureMin: number;
+      weatherCode: number;
+      weatherDescription: string;
+      precipitationSum: number; // mm
+      precipitationProbability: number; // %
+    }>; // 7 days
+    lastUpdated: string;
+  } | null; // Null if weather API fails
+  instagram: {
+    username: string; // "appartementschristine"
+    embedUrl: string;
+    profileUrl: string;
+  };
+  meta: {
+    fetchedAt: string; // ISO timestamp
+    responseTime: number; // milliseconds
+  };
+}
+```
+
+### Features
+
+- **Parallel Data Fetching**: All data sources are fetched simultaneously using `Promise.allSettled()`
+- **Graceful Degradation**: If weather API fails, other data is still returned
+- **Performance**: < 300ms target response time
+- **Caching**: Weather data is cached for 15 minutes
+- **Logging**: All requests are logged to `event_logs` table
+- **Error Handling**: Comprehensive error handling with detailed logging
+
+### Weather Data
+
+Weather data is provided by **Open-Meteo** (free, no API key required):
+- Location: Bezau, Vorarlberg, Austria (47.38534, 9.90231)
+- 7-day forecast with current conditions
+- 15-minute cache TTL
+
+### Mock Endpoint
+
+For frontend development and testing:
+
+**`GET /api/dashboard/mock`**
+
+Returns realistic mock data with the same structure as the production endpoint.
+
+### Usage Example
+
+```typescript
+// Fetch dashboard data
+const response = await fetch('/api/dashboard');
+const data = await response.json();
+
+// Access countdown
+if (data.countdown) {
+  console.log(`Check-in in ${data.countdown.totalDays} days`);
+  console.log(`Room: ${data.countdown.roomName}`);
+  console.log(`Guests: ${data.countdown.guestCount}`);
+}
+
+// Access weather
+if (data.weather) {
+  console.log(`Current temp: ${data.weather.current.temperature}°C`);
+  data.weather.forecast.forEach(day => {
+    console.log(`${day.date}: ${day.temperatureMax}°C`);
+  });
+}
+```
+
 ## 📈 Analytics
 
 PostHog analytics is integrated for event tracking and feature flags:

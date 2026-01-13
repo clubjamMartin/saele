@@ -41,6 +41,8 @@ Stores guest bookings from external booking systems.
 - `check_in` (date): Check-in date
 - `check_out` (date): Check-out date
 - `status` (text): Booking status - `'confirmed'` or `'cancelled'` (default: `'confirmed'`)
+- `guest_count` (integer, nullable): Number of guests for this booking
+- `room_name` (text, nullable): Name of the booked room (e.g., "Adele", "Hedwig", "Christine")
 - `created_at` (timestamptz): Booking creation timestamp
 
 **Purpose:** Tracks guest reservations, ensuring idempotency through `external_booking_id` unique constraint.
