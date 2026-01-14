@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { WelcomeSection } from './components/welcome-section'
 import { DashboardPreview } from './components/dashboard-preview'
 import { ProfileSetup } from './components/profile-setup'
 import { NotificationPrefs } from './components/notification-prefs'
 import { Completion } from './components/completion'
-import { completeOnboarding } from '@/lib/actions/onboarding-actions'
+import { completeOnboarding, getOnboardingStatus } from '@/lib/actions/onboarding-actions'
 import type { OnboardingData } from '@/lib/types/onboarding'
 
 export default function OnboardingPage() {
@@ -21,6 +21,20 @@ export default function OnboardingPage() {
       newsletter: false,
     },
   })
+
+  // Fetch user info on mount
+  useEffect(() => {
+    async function fetchUserInfo() {
+      const { user } = await getOnboardingStatus()
+      if (user) {
+        setOnboardingData((prev) => ({
+          ...prev,
+          fullName: user.user_metadata?.full_name || user.email || '',
+        }))
+      }
+    }
+    fetchUserInfo()
+  }, [])
 
   async function handleComplete() {
     setIsLoading(true)
