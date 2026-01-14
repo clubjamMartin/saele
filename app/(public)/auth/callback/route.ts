@@ -24,7 +24,9 @@ export async function GET(request: NextRequest) {
         .eq('user_id', data.user.id)
         .single();
       
-      if (!profile && !profileError) {
+      // Check if profile doesn't exist (PGRST116 = no rows returned)
+      // If profile doesn't exist OR if there was an error fetching it, create it
+      if (!profile || profileError) {
         // Profile doesn't exist, create it with default guest role
         // Use full_name from user metadata if available (set during signup)
         const { error: insertError } = await supabase
@@ -56,7 +58,8 @@ export async function GET(request: NextRequest) {
       
       // Check if user needs to complete onboarding
       // First-time users (onboarding_completed_at is null) should be redirected to onboarding
-      if (!profile?.onboarding_completed_at) {
+      // If profile doesn't exist (was just created) or onboarding_completed_at is null, redirect to onboarding
+      if (!profile || !profile.onboarding_completed_at) {
         return NextResponse.redirect(`${origin}/onboarding`);
       }
       

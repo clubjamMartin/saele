@@ -1,9 +1,16 @@
 import { requireAuth, getUserProfile, isAdmin } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 
 export default async function DashboardPage() {
   const user = await requireAuth();
   const profile = await getUserProfile(user.id);
+  
+  // If profile doesn't exist or onboarding not completed, redirect to onboarding
+  if (!profile || !profile.onboarding_completed_at) {
+    redirect('/onboarding');
+  }
+  
   const userIsAdmin = await isAdmin(user.id);
 
   // Fetch user's bookings
