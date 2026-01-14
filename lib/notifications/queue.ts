@@ -44,14 +44,14 @@ interface BookingConfirmationPayload {
 export async function queueNotification(
   params: QueueNotificationParams
 ): Promise<string> {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase.rpc('queue_notification', {
     p_type: params.type,
     p_recipient_email: params.recipientEmail,
     p_payload: params.payload as Json,
-    p_user_id: params.userId || null,
-    p_booking_id: params.bookingId || null,
+    p_user_id: params.userId ?? undefined,
+    p_booking_id: params.bookingId ?? undefined,
   })
 
   if (error) {
@@ -85,14 +85,14 @@ export async function queueMagicLinkNotification(
   magicLink: string,
   userId?: string
 ): Promise<string> {
-  const payload: MagicLinkPayload = {
+  const payload = {
     magic_link: magicLink,
   }
 
   return queueNotification({
     type: 'magic_link',
     recipientEmail: email,
-    payload,
+    payload: payload as unknown as Record<string, Json>,
     userId,
   })
 }
@@ -125,7 +125,7 @@ export async function queueBookingConfirmation(
   return queueNotification({
     type: 'booking_confirmation',
     recipientEmail: email,
-    payload,
+    payload: payload as unknown as Record<string, Json>,
     userId: booking.userId,
     bookingId: booking.id,
   })
@@ -142,7 +142,7 @@ export async function queueBookingConfirmation(
  * @returns Notification record or null
  */
 export async function getNotificationStatus(notificationId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('notifications')
@@ -167,7 +167,7 @@ export async function getNotificationStatus(notificationId: string) {
  * @returns Array of events or empty array
  */
 export async function getNotificationTimeline(notificationId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('notification_event_logs')

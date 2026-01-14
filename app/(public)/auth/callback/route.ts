@@ -45,15 +45,17 @@ export async function GET(request: NextRequest) {
       
       // Link any bookings with this email to the authenticated user
       // This handles mock bookings created before user authentication
-      const { error: linkBookingsError } = await supabase
-        .from('bookings')
-        .update({ guest_user_id: data.user.id })
-        .eq('email', data.user.email)
-        .is('guest_user_id', null);
-      
-      if (linkBookingsError) {
-        console.error('Error linking bookings to user:', linkBookingsError);
-        // Non-critical error, continue with authentication
+      if (data.user.email) {
+        const { error: linkBookingsError } = await supabase
+          .from('bookings')
+          .update({ guest_user_id: data.user.id })
+          .eq('email', data.user.email)
+          .is('guest_user_id', null);
+        
+        if (linkBookingsError) {
+          console.error('Error linking bookings to user:', linkBookingsError);
+          // Non-critical error, continue with authentication
+        }
       }
       
       // Check if user needs to complete onboarding
