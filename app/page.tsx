@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState, useMemo } from 'react';
 import { createMockBooking } from './actions/mock-booking';
 import { APARTMENTS } from '@/types/booking';
 import { createClient } from '@/lib/supabase/client';
@@ -8,6 +8,9 @@ import { createClient } from '@/lib/supabase/client';
 export default function MockBookingPage() {
   const [state, formAction, isPending] = useActionState(createMockBooking, null);
   const [sendingMagicLink, setSendingMagicLink] = useState(false);
+  
+  // Calculate min date once to avoid hydration mismatch
+  const minDate = useMemo(() => new Date().toISOString().split('T')[0], []);
 
   // Send magic link from client side after successful booking creation
   useEffect(() => {
@@ -155,7 +158,7 @@ export default function MockBookingPage() {
                 type="date"
                 required
                 disabled={isPending}
-                min={new Date().toISOString().split('T')[0]}
+                min={minDate}
                 className="w-full rounded-md border border-zinc-300 bg-white px-4 py-2 text-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800"
               />
               {state?.errors?.checkIn && (
@@ -179,7 +182,7 @@ export default function MockBookingPage() {
                 type="date"
                 required
                 disabled={isPending}
-                min={new Date().toISOString().split('T')[0]}
+                min={minDate}
                 className="w-full rounded-md border border-zinc-300 bg-white px-4 py-2 text-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800"
               />
               {state?.errors?.checkOut && (
