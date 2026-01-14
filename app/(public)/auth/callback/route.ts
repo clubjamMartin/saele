@@ -20,23 +20,44 @@ export async function GET(request: NextRequest) {
       // This handles profile creation for hosted Supabase where triggers on auth.users are restricted
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('user_id')
+        .select('user_id, onboarding_completed_at')
         .eq('user_id', data.user.id)
         .single();
       
       if (!profile && !profileError) {
         // Profile doesn't exist, create it with default guest role
+        // Use full_name from user metadata if available (set during signup)
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
             user_id: data.user.id,
             role: 'guest',
+            full_name: data.user.user_metadata?.full_name || null,
           });
         
         if (insertError) {
           console.error('Error creating profile:', insertError);
           // Continue anyway - profile might be created by trigger in local dev
         }
+      }
+      
+      // Link any bookings with this email to the authenticated user
+      // This handles mock bookings created before user authentication
+      const { error: linkBookingsError } = await supabase
+        .from('bookings')
+        .update({ guest_user_id: data.user.id })
+        .eq('email', data.user.email)
+        .is('guest_user_id', null);
+      
+      if (linkBookingsError) {
+        console.error('Error linking bookings to user:', linkBookingsError);
+        // Non-critical error, continue with authentication
+      }
+      
+      // Check if user needs to complete onboarding
+      // First-time users (onboarding_completed_at is null) should be redirected to onboarding
+      if (!profile?.onboarding_completed_at) {
+        return NextResponse.redirect(`${origin}/onboarding`);
       }
       
       // Successful authentication - redirect to the intended destination
