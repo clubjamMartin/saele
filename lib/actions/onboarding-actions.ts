@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import type { OnboardingData } from '@/lib/types/onboarding'
-import type { Json } from '@/lib/types/database.types'
+import type { Json } from '@/lib/supabase/database.types'
 
 export async function completeOnboarding(data: OnboardingData) {
   const supabase = await createClient()

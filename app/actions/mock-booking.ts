@@ -96,9 +96,7 @@ export async function createMockBooking(
       };
     }
 
-    console.log(`Created booking: ${externalBookingId} for ${data.email}`);
-
-    console.log(`Booking created for: ${data.email}. Client will send magic link.`);
+    console.log(`Created booking: ${externalBookingId} for ${data.email}. Client will send magic link.`);
 
     // Return success with email and name for client-side magic link sending
     // The client needs to call signInWithOtp because PKCE requires browser storage
