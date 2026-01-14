@@ -40,7 +40,9 @@ export async function proxy(request: NextRequest) {
 
   // Define route protection
   const isProtectedRoute =
-    path.startsWith('/admin') || path.startsWith('/dashboard');
+    path.startsWith('/admin') || 
+    path.startsWith('/dashboard') ||
+    path.startsWith('/onboarding');
   const isAuthRoute = path.startsWith('/login') || path.startsWith('/auth');
 
   // Redirect to login if accessing protected route without session
