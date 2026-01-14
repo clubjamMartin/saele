@@ -1,34 +1,37 @@
+'use client'
+
 import { ChevronDown } from 'lucide-react'
 
 export function WelcomeSection() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center bg-secondary px-6 text-center">
-      <h1 className="mb-16 font-['Blush_Free',cursive] text-[clamp(64px,8vw,120px)] leading-[1] text-white">
+    <section className="relative flex flex-col items-center min-h-screen bg-secondary text-white px-8 pt-[553px]">
+      {/* Main Title */}
+      <h1 className="font-['Blush_Free',cursive] text-[clamp(64px,6.25vw,120px)] leading-[100px] text-white text-center mb-[250px] max-w-[1254px]">
         Willkommen beim Saele.
       </h1>
-
-      <div className="max-w-3xl space-y-8">
-        <p className="font-['Blush_Free',cursive] text-[clamp(40px,5vw,64px)] leading-tight text-primary-light">
-          Explore!
+      
+      {/* Description */}
+      <div className="font-['Isabel',sans-serif] font-bold text-[clamp(24px,1.875vw,36px)] leading-[44px] text-white text-center max-w-[747px] mb-[161px]">
+        <p className="mb-0">
+          Urlaub ist die beste Zeit im Jahr! Damit du auch alles ganz entspannt entdecken kannst, haben wir dir unsere liebsten Tipps zusammengesammelt.{' '}
         </p>
-
-        <div className="font-['Isabel',serif] text-[clamp(24px,3vw,36px)] font-bold leading-relaxed text-white">
-          <p className="mb-6">
-            Urlaub ist die beste Zeit im Jahr! Damit du auch alles ganz
-            entspannt entdecken kannst, haben wir dir unsere liebsten Tipps
-            zusammengesammelt.
-          </p>
-          <p>
-            Wir erklären dir kurz wie du zur perfekten Reiseplanung kommst.
-          </p>
-        </div>
+        <p className="mb-0">&nbsp;</p>
+        <p className="mb-0">
+          Wir erklären dir kurz wie du zur perfekten Reiseplanung kommst.
+        </p>
       </div>
 
-      <div className="absolute bottom-12 flex animate-bounce flex-col items-center gap-2">
-        <span className="font-['Isabel',serif] text-sm text-white/80">
-          Scroll down
-        </span>
-        <ChevronDown className="h-8 w-8 text-white/80" />
+      {/* Explore Badge */}
+      <div className="mb-[104px]">
+        <p className="font-['Blush_Free',cursive] leading-[50px] text-primary-light text-center">
+          <span className="text-[64px]">Explore</span>
+          <span className="text-[50px]">!</span>
+        </p>
+      </div>
+      
+      {/* Animated Down Arrow */}
+      <div className="animate-bounce pb-12">
+        <ChevronDown size={48} className="text-primary-light" />
       </div>
     </section>
   )

@@ -9,39 +9,56 @@ export function NotificationPrefs({
   newsletter,
   onNewsletterChange,
 }: NotificationPrefsProps) {
+  const handleNotificationRequest = async (value: boolean) => {
+    onNewsletterChange(value)
+    
+    // Request browser notification permission if user agrees
+    if (value && typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default') {
+        try {
+          const permission = await Notification.requestPermission()
+          console.log('Notification permission:', permission)
+        } catch (error) {
+          console.error('Error requesting notification permission:', error)
+        }
+      }
+    }
+  }
+
   return (
-    <section className="relative min-h-screen bg-secondary px-6 py-24">
-      <div className="mx-auto max-w-3xl text-center">
-        <h2 className="font-['Isabel',serif] mb-16 text-5xl font-bold text-white">
-          Gerne würden wir dich über Neuigkeiten, Events, etc. per E-Mail
-          informieren.
-        </h2>
+    <section className="flex flex-col items-center justify-center min-h-screen bg-secondary text-white px-8 py-16">
+      {/* Heading */}
+      <h2 className="font-['Isabel',sans-serif] font-bold text-[48px] leading-[56px] text-white text-center max-w-[635px] mb-16">
+        Gerne würden wir dich über Neuigkeiten, Events, etc. per E-Mail informieren.
+      </h2>
 
-        <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
-          <button
-            type="button"
-            onClick={() => onNewsletterChange(true)}
-            className={`min-w-[280px] rounded-2xl border-2 px-12 py-6 font-['Josefin_Sans',sans-serif] text-lg font-medium shadow-xl transition-all hover:scale-105 ${
-              newsletter
-                ? 'border-primary-light bg-primary-light text-white'
-                : 'border-primary-light bg-transparent text-white hover:bg-primary-light/10'
-            }`}
-          >
+      {/* Button Group */}
+      <div className="flex gap-6">
+        <button
+          className={`h-[75px] w-[294px] rounded-[20px] border-2 border-primary-light transition-colors ${
+            newsletter 
+              ? 'bg-primary-light' 
+              : 'bg-secondary hover:bg-primary-light/20'
+          }`}
+          onClick={() => handleNotificationRequest(true)}
+        >
+          <span className="font-['Josefin_Sans',sans-serif] font-medium text-[18px] leading-[26px] text-white">
             SEHR GERNE
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onNewsletterChange(false)}
-            className={`min-w-[280px] rounded-2xl border-2 px-12 py-6 font-['Josefin_Sans',sans-serif] text-lg font-medium shadow-xl transition-all hover:scale-105 ${
-              !newsletter
-                ? 'border-primary-light bg-primary-light text-white'
-                : 'border-primary-light bg-transparent text-white hover:bg-primary-light/10'
-            }`}
-          >
+          </span>
+        </button>
+        
+        <button
+          className={`h-[75px] w-[294px] rounded-[20px] border-2 border-primary-light transition-colors ${
+            !newsletter 
+              ? 'bg-primary-light' 
+              : 'bg-secondary hover:bg-primary-light/20'
+          }`}
+          onClick={() => handleNotificationRequest(false)}
+        >
+          <span className="font-['Josefin_Sans',sans-serif] font-medium text-[18px] leading-[26px] text-white">
             NEIN DANKE
-          </button>
-        </div>
+          </span>
+        </button>
       </div>
     </section>
   )
