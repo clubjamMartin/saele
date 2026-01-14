@@ -93,7 +93,7 @@ export default function MockBookingPage() {
           </p>
         </div>
 
-        <form action={formAction} className="space-y-4">
+        <form action={formAction} className="space-y-4" suppressHydrationWarning>
           {/* Name Field */}
           <div className="space-y-2">
             <label
