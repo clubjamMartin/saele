@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Josefin_Sans } from "next/font/google";
 import "./globals.css";
 import { PostHogProvider } from "@/lib/analytics/posthog";
 
@@ -13,9 +13,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const josefinSans = Josefin_Sans({
+  variable: "--font-josefin-sans",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Saele - Guest Management Platform",
-  description: "Manage your bookings and guest experience with ease",
+  title: "Saele - Deine Urlaubsplattform",
+  description: "Entdecke die perfekte Reiseplanung mit Saele",
 };
 
 export default function RootLayout({
@@ -24,9 +30,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="de">
+      <head>
+        {/* Custom fonts that aren't available in next/font/google */}
+        <link
+          href="https://fonts.cdnfonts.com/css/blush-free"
+          rel="stylesheet"
+        />
+        <link href="https://fonts.cdnfonts.com/css/isabel" rel="stylesheet" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${josefinSans.variable} antialiased`}
       >
         <PostHogProvider>{children}</PostHogProvider>
       </body>
