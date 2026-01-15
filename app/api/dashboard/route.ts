@@ -38,6 +38,7 @@ export async function GET() {
       profileResult,
       bookingsResult,
       hostContactsResult,
+      servicesResult,
       weatherResult,
     ] = await Promise.allSettled([
       // Fetch user profile
@@ -60,6 +61,13 @@ export async function GET() {
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false }),
+
+      // Fetch active services
+      supabase
+        .from('services')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true }),
 
       // Fetch weather data
       getWeatherData(),
@@ -88,6 +96,12 @@ export async function GET() {
     const hostContacts =
       hostContactsResult.status === 'fulfilled' && hostContactsResult.value.data
         ? hostContactsResult.value.data
+        : [];
+
+    // Extract services data
+    const services =
+      servicesResult.status === 'fulfilled' && servicesResult.value.data
+        ? servicesResult.value.data
         : [];
 
     // Extract weather data (can be null if API fails)
@@ -136,6 +150,7 @@ export async function GET() {
           countdown_available: countdown !== null,
           bookings_count: bookings.length,
           contacts_count: hostContacts.length,
+          services_count: services.length,
         },
       });
     } catch (logError) {
@@ -153,7 +168,6 @@ export async function GET() {
       user: {
         id: user.id,
         email: user.email || '',
-        name: profile.full_name,
         fullName: profile.full_name,
         phone: profile.phone,
         role: profile.role as 'guest' | 'admin',
@@ -180,7 +194,13 @@ export async function GET() {
         ...instagram,
         latestPosts: [],
       },
-      services: [],
+      services: services.map((s) => ({
+        id: s.id,
+        name: s.name,
+        description: s.description,
+        status: s.status as 'active' | 'available' | 'unavailable',
+        icon: s.icon,
+      })),
       meta: {
         fetchedAt: new Date().toISOString(),
         responseTime,

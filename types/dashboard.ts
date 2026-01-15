@@ -6,7 +6,6 @@
 export interface DashboardUser {
   id: string;
   email: string;
-  name: string | null; // alias for fullName, for compatibility
   fullName: string | null;
   phone: string | null;
   role: 'guest' | 'admin';

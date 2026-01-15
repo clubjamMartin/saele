@@ -26,31 +26,34 @@
 -- =====================================================
 
 -- Admin profile
-insert into public.profiles (user_id, role, full_name, phone, created_at, updated_at)
+insert into public.profiles (user_id, role, full_name, phone, onboarding_completed_at, created_at, updated_at)
 values 
   (
     '00000000-0000-0000-0000-000000000001'::uuid,
     'admin',
     'Admin User',
     '+49 123 4567890',
-    now(),
+    now() - interval '7 days',
+    now() - interval '7 days',
     now()
   )
 on conflict (user_id) do update
   set role = 'admin',
       full_name = 'Admin User',
       phone = '+49 123 4567890',
+      onboarding_completed_at = now() - interval '7 days',
       updated_at = now();
 
--- Guest profiles
-insert into public.profiles (user_id, role, full_name, phone, created_at, updated_at)
+-- Guest profiles (with completed onboarding so they can access dashboard)
+insert into public.profiles (user_id, role, full_name, phone, onboarding_completed_at, created_at, updated_at)
 values 
   (
     '00000000-0000-0000-0000-000000000002'::uuid,
     'guest',
     'Max Mustermann',
     '+49 170 1234567',
-    now(),
+    now() - interval '5 days',
+    now() - interval '5 days',
     now()
   ),
   (
@@ -58,7 +61,8 @@ values
     'guest',
     'Anna Schmidt',
     '+49 170 7654321',
-    now(),
+    now() - interval '3 days',
+    now() - interval '3 days',
     now()
   )
 on conflict (user_id) do nothing;
@@ -105,6 +109,8 @@ insert into public.bookings (
   check_in,
   check_out,
   status,
+  guest_count,
+  room_name,
   created_at
 )
 values 
@@ -115,6 +121,8 @@ values
     current_date + interval '7 days',
     current_date + interval '14 days',
     'confirmed',
+    4,
+    'Christine',
     now()
   ),
   (
@@ -124,6 +132,8 @@ values
     current_date - interval '30 days',
     current_date - interval '23 days',
     'confirmed',
+    2,
+    'Hedwig',
     now() - interval '35 days'
   ),
   (
@@ -133,6 +143,8 @@ values
     current_date + interval '14 days',
     current_date + interval '21 days',
     'confirmed',
+    6,
+    'Adele',
     now()
   ),
   (
@@ -142,11 +154,81 @@ values
     current_date + interval '60 days',
     current_date + interval '70 days',
     'cancelled',
+    3,
+    'Christine',
     now() - interval '5 days'
   );
 
 -- =====================================================
--- 4. NOTIFICATIONS
+-- 4. SERVICES
+-- =====================================================
+
+INSERT INTO public.services (name, description, status, icon, display_order, is_active, created_at, updated_at)
+VALUES
+  (
+    'Frühstück',
+    'Tägliches Frühstücksbuffet von 7:30 bis 10:00 Uhr',
+    'available',
+    'coffee',
+    1,
+    true,
+    now(),
+    now()
+  ),
+  (
+    'Parkplatz',
+    'Kostenloser Parkplatz direkt am Haus',
+    'active',
+    'car',
+    2,
+    true,
+    now(),
+    now()
+  ),
+  (
+    'Skipass',
+    'Skipässe für Mellau-Damüls Skigebiet',
+    'available',
+    'mountain',
+    3,
+    true,
+    now(),
+    now()
+  ),
+  (
+    'Fahrradverleih',
+    'E-Bikes und Mountainbikes verfügbar',
+    'available',
+    'bike',
+    4,
+    true,
+    now(),
+    now()
+  ),
+  (
+    'Wellness',
+    'Sauna und Dampfbad im Haus',
+    'active',
+    'heart',
+    5,
+    true,
+    now(),
+    now()
+  ),
+  (
+    'Wäscheservice',
+    'Wäscheservice auf Anfrage',
+    'available',
+    'shirt',
+    6,
+    true,
+    now(),
+    now()
+  )
+ON CONFLICT (id) DO NOTHING;
+
+-- =====================================================
+-- 5. NOTIFICATIONS
 -- =====================================================
 
 insert into public.notifications (
@@ -234,7 +316,7 @@ values (
 );
 
 -- =====================================================
--- 5. EVENT LOGS
+-- 6. EVENT LOGS
 -- =====================================================
 
 insert into public.event_logs (
