@@ -56,11 +56,22 @@ export async function proxy(request: NextRequest) {
   // Onboarding logic - only for authenticated users
   if (user) {
     // Check if user has completed onboarding
-    const { data: profile } = await supabase
+    // Note: Supabase doesn't cache by default in middleware context
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('onboarding_completed_at, role')
       .eq('user_id', user.id)
       .single()
+
+    if (profileError) {
+      console.error('[Middleware] Error fetching profile:', profileError)
+    }
+
+    console.log('[Middleware] Profile check for', user.id, ':', {
+      onboarding_completed_at: profile?.onboarding_completed_at,
+      role: profile?.role,
+      path: path
+    })
 
     const hasCompletedOnboarding = !!profile?.onboarding_completed_at
 

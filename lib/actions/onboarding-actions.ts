@@ -29,7 +29,7 @@ export async function completeOnboarding(data: OnboardingData) {
   }
 
   // Update profile with onboarding data
-  const { error: updateError } = await supabase
+  const { data: updatedProfile, error: updateError } = await supabase
     .from('profiles')
     .update({
       full_name: data.fullName,
@@ -40,18 +40,33 @@ export async function completeOnboarding(data: OnboardingData) {
       updated_at: new Date().toISOString(),
     })
     .eq('user_id', user.id)
+    .select()
+    .single()
 
   if (updateError) {
     console.error('[Server] Database update failed:', updateError)
     return { success: false, error: updateError.message }
   }
 
-  console.log('[Server] Onboarding completed successfully')
+  console.log('[Server] Onboarding completed successfully, updated profile:', updatedProfile)
 
-  // Revalidate paths
-  revalidatePath('/')
-  revalidatePath('/dashboard')
-  revalidatePath('/onboarding')
+  // Verify the update was successful
+  if (!updatedProfile?.onboarding_completed_at) {
+    console.error('[Server] onboarding_completed_at was not set correctly')
+    return { success: false, error: 'Onboarding completion failed to save' }
+  }
+
+  // Revalidate paths to clear Next.js cache
+  revalidatePath('/', 'layout')
+  revalidatePath('/dashboard', 'page')
+  revalidatePath('/onboarding', 'page')
+
+  // Force revalidation of all routes
+  try {
+    revalidatePath('/', 'layout')
+  } catch (e) {
+    console.error('[Server] Error revalidating:', e)
+  }
 
   return { success: true }
 }

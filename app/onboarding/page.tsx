@@ -53,17 +53,12 @@ export default function OnboardingPage() {
       console.log('completeOnboarding result:', result)
 
       if (result.success) {
-        console.log('Onboarding successful, navigating to dashboard...')
-        // Wait a moment for the database to update, then navigate
+        console.log('Onboarding successful, forcing hard navigation to dashboard...')
+        // Use hard navigation to force middleware to re-evaluate with fresh data
+        // This ensures the middleware sees the updated onboarding_completed_at
         setTimeout(() => {
-          router.push('/dashboard')
-          // Fallback to hard navigation if router doesn't work
-          setTimeout(() => {
-            if (window.location.pathname !== '/dashboard') {
-              window.location.href = '/dashboard'
-            }
-          }, 1000)
-        }, 500)
+          window.location.href = '/dashboard'
+        }, 1000)
       } else {
         console.error('Failed to complete onboarding:', result.error)
         alert(`Fehler beim Speichern: ${result.error || 'Unbekannter Fehler'}. Bitte versuche es erneut.`)
