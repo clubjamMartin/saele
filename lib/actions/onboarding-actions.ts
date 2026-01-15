@@ -29,7 +29,7 @@ export async function completeOnboarding(data: OnboardingData) {
   }
 
   // Update profile with onboarding data
-  const { data: updatedProfile, error: updateError } = await supabase
+  const { data: updatedProfiles, error: updateError } = await supabase
     .from('profiles')
     .update({
       full_name: data.fullName,
@@ -41,13 +41,19 @@ export async function completeOnboarding(data: OnboardingData) {
     })
     .eq('user_id', user.id)
     .select()
-    .single()
 
   if (updateError) {
     console.error('[Server] Database update failed:', updateError)
     return { success: false, error: updateError.message }
   }
 
+  // Check if any rows were updated
+  if (!updatedProfiles || updatedProfiles.length === 0) {
+    console.error('[Server] No profile found to update for user:', user.id)
+    return { success: false, error: 'Profil nicht gefunden' }
+  }
+
+  const updatedProfile = updatedProfiles[0]
   console.log('[Server] Onboarding completed successfully, updated profile:', updatedProfile)
 
   // Verify the update was successful
