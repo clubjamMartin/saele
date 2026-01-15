@@ -28,6 +28,39 @@ export async function completeOnboarding(data: OnboardingData) {
     return { success: false, error: 'Name ist erforderlich' }
   }
 
+  // First, check if profile exists
+  const { data: existingProfile, error: fetchError } = await supabase
+    .from('profiles')
+    .select('user_id, onboarding_completed_at')
+    .eq('user_id', user.id)
+    .single()
+
+  if (fetchError) {
+    console.error('[Server] Error fetching profile:', fetchError)
+    
+    // If profile doesn't exist, create it first
+    if (fetchError.code === 'PGRST116') {
+      console.log('[Server] Profile does not exist, creating one...')
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: user.id,
+          email: user.email,
+          role: 'guest',
+        })
+      
+      if (insertError) {
+        console.error('[Server] Failed to create profile:', insertError)
+        return { success: false, error: 'Profil konnte nicht erstellt werden' }
+      }
+      console.log('[Server] Profile created successfully')
+    } else {
+      return { success: false, error: fetchError.message }
+    }
+  } else {
+    console.log('[Server] Existing profile found:', existingProfile)
+  }
+
   // Update profile with onboarding data
   const { data: updatedProfiles, error: updateError } = await supabase
     .from('profiles')
@@ -49,8 +82,9 @@ export async function completeOnboarding(data: OnboardingData) {
 
   // Check if any rows were updated
   if (!updatedProfiles || updatedProfiles.length === 0) {
-    console.error('[Server] No profile found to update for user:', user.id)
-    return { success: false, error: 'Profil nicht gefunden' }
+    console.error('[Server] No rows were updated for user:', user.id)
+    console.error('[Server] This should not happen after profile check')
+    return { success: false, error: 'Profil konnte nicht aktualisiert werden' }
   }
 
   const updatedProfile = updatedProfiles[0]
