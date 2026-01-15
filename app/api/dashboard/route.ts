@@ -199,7 +199,7 @@ export async function GET() {
         name: s.name,
         description: s.description,
         status: s.status as 'active' | 'available' | 'unavailable',
-        icon: s.icon,
+        icon: s.icon ?? undefined,
       })),
       meta: {
         fetchedAt: new Date().toISOString(),
