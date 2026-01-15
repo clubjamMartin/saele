@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { headers } from 'next/headers';
 import type { BookingServerActionResult } from '@/types/booking';
 import { APARTMENTS } from '@/types/booking';
 
@@ -34,9 +35,9 @@ const mockBookingSchema = z.object({
 type MockBookingFormData = z.infer<typeof mockBookingSchema>;
 
 /**
- * Server action to handle mock booking creation
+ * Server action to handle mock booking creation and magic link sending
  * 
- * Modern approach using signInWithOtp:
+ * Modern approach using signInWithOtp from server:
  * 1. Validate form data
  * 2. Create booking with email (guest_user_id will be linked later)
  * 3. Send magic link via signInWithOtp (auto-creates user if doesn't exist)
@@ -96,17 +97,36 @@ export async function createMockBooking(
       };
     }
 
-    console.log(`Created booking: ${externalBookingId} for ${data.email}. Client will send magic link.`);
+    // Step 2: Send magic link from server side
+    const headersList = await headers();
+    const origin = headersList.get('origin') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
-    // Return success with email and name for client-side magic link sending
-    // The client needs to call signInWithOtp because PKCE requires browser storage
+    const { error: authError } = await supabase.auth.signInWithOtp({
+      email: data.email,
+      options: {
+        emailRedirectTo: `${origin}/auth/callback`,
+        data: {
+          full_name: data.name,
+        },
+      },
+    });
+
+    if (authError) {
+      console.error('Error sending magic link:', authError);
+      // Booking was created but magic link failed
+      // Don't fail the entire operation, just notify the user
+      return {
+        success: true,
+        message: `Booking confirmed! However, we had trouble sending your login email. Please contact support or try logging in at /login with ${data.email}.`,
+      };
+    }
+
+    console.log(`Created booking: ${externalBookingId} for ${data.email} and sent magic link.`);
+
+    // Return success - no need to pass data back since magic link is sent from server
     return {
       success: true,
       message: `Booking confirmed! We've sent a magic link to ${data.email}. Click the link to access your dashboard.`,
-      data: {
-        email: data.email,
-        name: data.name,
-      },
     };
   } catch (error) {
     console.error('Unexpected error in createMockBooking:', error);

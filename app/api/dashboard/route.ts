@@ -1,6 +1,20 @@
 /**
  * Dashboard API Route
- * Consolidated endpoint for all dashboard data
+ * 
+ * ⚠️ EXTERNAL API INTERFACE ONLY ⚠️
+ * 
+ * This API route is maintained for external integrations (mobile apps, webhooks, etc.)
+ * 
+ * For internal Next.js pages, DO NOT use this API route:
+ * - Use direct Supabase queries in Server Components instead
+ * - See app/(protected)/dashboard/page.tsx for the recommended pattern
+ * 
+ * Benefits of direct queries over API routes:
+ * - Faster (no extra network hop)
+ * - Better type safety
+ * - Automatic request deduplication
+ * - Simplified architecture
+ * 
  * Part of SAE-13: Dashboard Backend API
  */
 

@@ -1,93 +1,56 @@
+/**
+ * @deprecated This file is deprecated and should not be used.
+ * 
+ * All auth operations have been moved to server actions in `lib/actions/auth-actions.ts`.
+ * 
+ * Migration guide:
+ * - Use `sendMagicLink()` from `@/lib/actions/auth-actions` instead of `signInWithMagicLink()`
+ * - Use `signOut()` from `@/lib/actions/auth-actions` instead of the client-side version
+ * - For session checks, use server-side helpers from `@/lib/auth/session`
+ * 
+ * This file is kept for reference only and will be removed in a future version.
+ */
+
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
 
 /**
- * Send a magic link to the user's email for passwordless authentication
- * @param email - User's email address
- * @param redirectTo - Optional redirect URL after authentication (defaults to /dashboard)
+ * @deprecated Use `sendMagicLink` from `@/lib/actions/auth-actions` instead
  */
 export async function signInWithMagicLink(
   email: string,
   redirectTo: string = '/dashboard'
 ) {
-  const supabase = createClient();
-  
-  const { data, error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
-    },
-  });
-  
-  if (error) {
-    console.error('Error sending magic link:', error);
-    throw error;
-  }
-  
-  return data;
+  throw new Error('This function is deprecated. Use sendMagicLink from @/lib/actions/auth-actions instead.');
 }
 
 /**
- * Sign out the current user
+ * @deprecated Use `signOut` from `@/lib/actions/auth-actions` instead
  */
 export async function signOut() {
-  const supabase = createClient();
-  
-  const { error } = await supabase.auth.signOut();
-  
-  if (error) {
-    console.error('Error signing out:', error);
-    throw error;
-  }
-  
-  // Redirect to home page after sign out
-  window.location.href = '/';
+  throw new Error('This function is deprecated. Use signOut from @/lib/actions/auth-actions instead.');
 }
 
 /**
- * Get the current session (client-side)
+ * @deprecated Use server-side session helpers from `@/lib/auth/session` instead
  */
 export async function getSession() {
-  const supabase = createClient();
-  const { data: { session }, error } = await supabase.auth.getSession();
-  
-  if (error) {
-    console.error('Error getting session:', error);
-    return null;
-  }
-  
-  return session;
+  throw new Error('This function is deprecated. Use server-side getSession from @/lib/auth/session instead.');
 }
 
 /**
- * Get the current user (client-side)
+ * @deprecated Use server-side user helpers from `@/lib/auth/session` instead
  */
 export async function getUser() {
-  const supabase = createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-  
-  if (error) {
-    console.error('Error getting user:', error);
-    return null;
-  }
-  
-  return user;
+  throw new Error('This function is deprecated. Use server-side getUser from @/lib/auth/session instead.');
 }
 
 /**
- * Listen to auth state changes
- * @param callback - Function to call when auth state changes
- * @returns Unsubscribe function
+ * @deprecated Auth state changes should be handled server-side
  */
 export function onAuthStateChange(
   callback: (event: string, session: unknown) => void
 ) {
-  const supabase = createClient();
-  
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange(callback);
-  
-  return () => subscription.unsubscribe();
+  throw new Error('This function is deprecated. Handle auth state changes server-side.');
 }

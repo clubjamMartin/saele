@@ -1,42 +1,14 @@
 'use client';
 
-import { useActionState, useEffect, useState, useMemo } from 'react';
+import { useActionState, useMemo } from 'react';
 import { createMockBooking } from './actions/mock-booking';
 import { APARTMENTS } from '@/types/booking';
-import { createClient } from '@/lib/supabase/client';
 
 export default function MockBookingPage() {
   const [state, formAction, isPending] = useActionState(createMockBooking, null);
-  const [sendingMagicLink, setSendingMagicLink] = useState(false);
   
   // Calculate min date once to avoid hydration mismatch
   const minDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-
-  // Send magic link from client side after successful booking creation
-  useEffect(() => {
-    async function sendMagicLink() {
-      if (state?.success && state.data && !sendingMagicLink) {
-        setSendingMagicLink(true);
-        const supabase = createClient();
-        
-        const { error } = await supabase.auth.signInWithOtp({
-          email: state.data.email,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-            data: {
-              full_name: state.data.name,
-            },
-          },
-        });
-
-        if (error) {
-          console.error('Error sending magic link:', error);
-        }
-      }
-    }
-
-    sendMagicLink();
-  }, [state, sendingMagicLink]);
 
   // Show success state
   if (state?.success) {

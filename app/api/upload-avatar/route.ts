@@ -1,3 +1,12 @@
+/**
+ * Avatar Upload API Route
+ * 
+ * This API route handles file uploads to Supabase Storage.
+ * API routes are appropriate for file uploads as they handle multipart/form-data.
+ * 
+ * Used by: Onboarding flow and profile settings
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 

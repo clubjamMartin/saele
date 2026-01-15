@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signInWithMagicLink } from '@/lib/auth/client';
+import { sendMagicLink } from '@/lib/actions/auth-actions';
 import { Card } from '@/components/ui/card';
 
 export default function LoginPage() {
@@ -16,8 +16,12 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      await signInWithMagicLink(email);
-      setSubmitted(true);
+      const result = await sendMagicLink(email);
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setError(result.error || 'Failed to send magic link');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send magic link');
     } finally {
