@@ -56,6 +56,14 @@ export function ProfileSetup({
           body: formData,
         })
         
+        // Check if response is JSON before parsing
+        const contentType = response.headers.get('content-type')
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error('Avatar upload failed: Non-JSON response')
+          alert('Avatar upload fehlgeschlagen. Bitte versuche es erneut.')
+          return
+        }
+        
         const data = await response.json()
         
         if (data.success) {
@@ -155,6 +163,7 @@ export function ProfileSetup({
           onBlur={handleNameBlur}
           onKeyDown={handleNameKeyDown}
           className="font-['Isabel',sans-serif] font-bold text-[48px] leading-[56px] text-primary-light text-center mb-[54px] bg-transparent border-b-2 border-primary-light outline-none max-w-[600px] px-4"
+          suppressHydrationWarning
         />
       ) : (
         <div 
@@ -164,6 +173,7 @@ export function ProfileSetup({
         >
           <h2 
             className="font-['Isabel',sans-serif] font-bold text-[48px] leading-[56px] text-primary-light text-center group-hover:opacity-80 transition-opacity"
+            suppressHydrationWarning
           >
             {fullName || 'Dein Name'}
           </h2>
@@ -217,6 +227,7 @@ export function ProfileSetup({
           onKeyDown={handleCustomInterestKeyDown}
           placeholder="Eigene Interessen hinzufügen..."
           className="flex-1 h-[50px] px-4 rounded-[20px] bg-white/10 border-2 border-primary-light text-white placeholder:text-white/50 font-['Josefin_Sans',sans-serif] text-[16px] outline-none focus:bg-white/20 transition-colors"
+          suppressHydrationWarning
         />
         <button
           onClick={handleAddCustomInterest}
