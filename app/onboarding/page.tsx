@@ -56,7 +56,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="scroll-smooth">
+    <div className="scroll-smooth min-h-screen" style={{ backgroundColor: 'var(--color-saele-background)' }}>
       <WelcomeSection />
 
       <DashboardPreview />
