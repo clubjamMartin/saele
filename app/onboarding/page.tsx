@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { WelcomeSection } from './components/welcome-section'
 import { DashboardPreview } from './components/dashboard-preview'
 import { ProfileSetup } from './components/profile-setup'
@@ -11,7 +10,6 @@ import { completeOnboarding, getOnboardingStatus } from '@/lib/actions/onboardin
 import type { OnboardingData } from '@/lib/types/onboarding'
 
 export default function OnboardingPage() {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     fullName: '',
@@ -43,15 +41,16 @@ export default function OnboardingPage() {
       const result = await completeOnboarding(onboardingData)
 
       if (result.success) {
-        router.push('/dashboard')
+        // Use full page navigation to ensure middleware re-evaluates onboarding status
+        window.location.href = '/dashboard'
       } else {
         console.error('Failed to complete onboarding:', result.error)
         alert('Fehler beim Speichern. Bitte versuche es erneut.')
+        setIsLoading(false)
       }
     } catch (error) {
       console.error('Error completing onboarding:', error)
       alert('Fehler beim Speichern. Bitte versuche es erneut.')
-    } finally {
       setIsLoading(false)
     }
   }
