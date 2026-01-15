@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getSession } from '@/lib/auth/session';
+import { requireAuth, getUserProfile } from '@/lib/auth/session';
 import { DashboardResponse } from '@/types/dashboard';
 import { WelcomeSection } from '@/components/dashboard/WelcomeSection';
 import { CountdownTimer } from '@/components/dashboard/CountdownTimer';
@@ -12,11 +12,8 @@ import styles from './dashboard.module.css';
 
 async function getDashboardData(): Promise<DashboardResponse> {
   try {
-    // Use mock API in development, real API in production
-    const isDev = process.env.NODE_ENV === 'development';
-    const apiUrl = isDev
-      ? `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/dashboard/mock`
-      : `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/dashboard`;
+    // Always use real API - seed data provides mock data in database
+    const apiUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/dashboard`;
 
     const response = await fetch(apiUrl, {
       cache: 'no-store',
@@ -31,7 +28,7 @@ async function getDashboardData(): Promise<DashboardResponse> {
     console.error('Error fetching dashboard data:', error);
     // Return minimal fallback data
     return {
-      user: { id: '', name: null, fullName: null, email: '', phone: null, role: 'guest' as const },
+      user: { id: '', fullName: null, email: '', phone: null, role: 'guest' as const },
       bookings: [],
       countdown: null,
       weather: null,
@@ -52,22 +49,24 @@ async function getDashboardData(): Promise<DashboardResponse> {
 }
 
 export default async function DashboardPage() {
-  const session = await getSession();
-
-  if (!session) {
-    redirect('/login');
+  const user = await requireAuth();
+  const profile = await getUserProfile(user.id);
+  
+  // If profile doesn't exist or onboarding not completed, redirect to onboarding
+  if (!profile || !profile.onboarding_completed_at) {
+    redirect('/onboarding');
   }
 
   const dashboardData = await getDashboardData();
 
   return (
-    <main className="min-h-screen" style={{ backgroundColor: 'var(--color-saele-secondary)' }}>
+    <main className="min-h-screen" style={{ backgroundColor: 'var(--color-saele-background)' }}>
       {/* Mobile/Tablet/Desktop Responsive Grid */}
       <div className={styles.dashboardContainer}>
         {/* Welcome Section - Full width on mobile, left column on desktop */}
         <div className={styles.welcomeSection}>
           <WelcomeSection
-            userName={dashboardData.user.name}
+            userName={dashboardData.user.fullName}
             userEmail={dashboardData.user.email}
           />
         </div>

@@ -1,74 +1,130 @@
-import { createServerClient } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+import type { Database } from '@/lib/supabase/database.types'
 
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  });
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
 
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll();
+          return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
-          response = NextResponse.next({
+          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
             request,
-          });
+          })
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
+            supabaseResponse.cookies.set(name, value, options)
+          )
         },
       },
     }
-  );
+  )
 
-  // Refresh session if expired - required for Server Components
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  const path = request.nextUrl.pathname;
+  const path = request.nextUrl.pathname
 
   // Define route protection
   const isProtectedRoute =
-    path.startsWith('/admin') || path.startsWith('/dashboard');
+    path.startsWith('/admin') || 
+    path.startsWith('/dashboard') ||
+    path.startsWith('/onboarding');
   const isAuthRoute = path.startsWith('/login') || path.startsWith('/auth');
 
   // Redirect to login if accessing protected route without session
-  if (isProtectedRoute && !session) {
-    const redirectUrl = new URL('/login', request.url);
-    redirectUrl.searchParams.set('next', path);
-    return NextResponse.redirect(redirectUrl);
+  if (isProtectedRoute && !user) {
+    const redirectUrl = new URL('/login', request.url)
+    redirectUrl.searchParams.set('next', path)
+    const redirectResponse = NextResponse.redirect(redirectUrl)
+    // Copy cookies from supabase response
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+    })
+    return redirectResponse
   }
 
-  // Check admin access for /admin routes
-  if (path.startsWith('/admin') && session) {
+  // Onboarding logic - only for authenticated users
+  if (user) {
+    // Check if user has completed onboarding
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
-      .eq('user_id', session.user.id)
-      .single();
+      .select('onboarding_completed_at, role')
+      .eq('user_id', user.id)
+      .single()
 
-    if (profile?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+    const hasCompletedOnboarding = !!profile?.onboarding_completed_at
+
+    // Redirect logic
+    if (!hasCompletedOnboarding && path !== '/onboarding' && path !== '/login' && !path.startsWith('/auth')) {
+      // User hasn't completed onboarding - redirect to onboarding
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding'
+      const redirectResponse = NextResponse.redirect(url)
+      // Copy cookies from supabase response
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+      })
+      return redirectResponse
+    }
+
+    if (hasCompletedOnboarding && path === '/') {
+      // User has completed onboarding - redirect root to dashboard
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      const redirectResponse = NextResponse.redirect(url)
+      // Copy cookies from supabase response
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+      })
+      return redirectResponse
+    }
+
+    if (hasCompletedOnboarding && path === '/onboarding') {
+      // User already completed onboarding - redirect to dashboard
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      const redirectResponse = NextResponse.redirect(url)
+      // Copy cookies from supabase response
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+      })
+      return redirectResponse
+    }
+
+    // Check admin access for /admin routes
+    if (path.startsWith('/admin')) {
+      if (profile?.role !== 'admin') {
+        const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
+        // Copy cookies from supabase response
+        supabaseResponse.cookies.getAll().forEach((cookie) => {
+          redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+        })
+        return redirectResponse
+      }
+    }
+
+    // Redirect authenticated users away from login page
+    if (isAuthRoute && path === '/login') {
+      const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
+      // Copy cookies from supabase response
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+      })
+      return redirectResponse
     }
   }
 
-  // Redirect authenticated users away from login page
-  if (isAuthRoute && session && path === '/login') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  return response;
+  return supabaseResponse
 }
 
 export const config = {
@@ -82,5 +138,4 @@ export const config = {
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-};
-
+}

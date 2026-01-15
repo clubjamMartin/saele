@@ -50,8 +50,8 @@ export async function queueNotification(
     p_type: params.type,
     p_recipient_email: params.recipientEmail,
     p_payload: params.payload as Json,
-    p_user_id: params.userId || undefined,
-    p_booking_id: params.bookingId || undefined,
+    p_user_id: params.userId ?? undefined,
+    p_booking_id: params.bookingId ?? undefined,
   })
 
   if (error) {
@@ -85,7 +85,7 @@ export async function queueMagicLinkNotification(
   magicLink: string,
   userId?: string
 ): Promise<string> {
-  const payload: MagicLinkPayload = {
+  const payload = {
     magic_link: magicLink,
   }
 

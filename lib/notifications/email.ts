@@ -26,15 +26,16 @@ export async function sendEmail({
   replyTo?: string;
 }) {
   try {
-    const emailOptions: Record<string, any> = {
+    // Build email options object based on what's provided
+    // Resend requires either html OR text to be present
+    const emailOptions = {
       from: EMAIL_FROM,
       to,
       subject,
-    };
-
-    if (html) emailOptions.html = html;
-    if (text) emailOptions.text = text;
-    if (replyTo) emailOptions.replyTo = replyTo;
+      ...(html && { html }),
+      ...(text && { text }),
+      ...(replyTo && { replyTo }),
+    } as Parameters<typeof resend.emails.send>[0];
 
     const { data, error } = await resend.emails.send(emailOptions as any);
 

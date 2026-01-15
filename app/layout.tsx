@@ -13,21 +13,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Josefin Sans for dashboard UI
 const josefinSans = Josefin_Sans({
-  variable: "--font-josefin",
+  variable: "--font-josefin-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
-// Note: Isabel and Blush Free fonts are not available in Google Fonts
-// They will need to be loaded as custom fonts or substituted with similar alternatives
-// For now, we'll use Josefin Sans as the primary font family
-
 export const metadata: Metadata = {
-  title: "Saele - Guest Management Platform",
-  description: "Manage your bookings and guest experience with ease",
+  title: "Saele - Deine Urlaubsplattform",
+  description: "Entdecke die perfekte Reiseplanung mit Saele",
 };
 
 export default function RootLayout({
@@ -36,7 +31,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="de">
+      <head>
+        {/* Custom fonts that aren't available in next/font/google */}
+        <link
+          href="https://fonts.cdnfonts.com/css/blush-free"
+          rel="stylesheet"
+        />
+        <link href="https://fonts.cdnfonts.com/css/isabel" rel="stylesheet" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${josefinSans.variable} antialiased`}
       >
