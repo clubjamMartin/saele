@@ -6,6 +6,7 @@ import type { OnboardingData } from '@/lib/types/onboarding'
 import type { Json } from '@/lib/supabase/database.types'
 
 export async function completeOnboarding(data: OnboardingData) {
+  console.log('[Server] completeOnboarding called with:', data)
   const supabase = await createClient()
 
   // Get current user
@@ -15,7 +16,16 @@ export async function completeOnboarding(data: OnboardingData) {
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
+    console.error('[Server] User authentication failed:', userError)
     return { success: false, error: 'User not authenticated' }
+  }
+
+  console.log('[Server] Updating profile for user:', user.id)
+
+  // Validate required fields
+  if (!data.fullName || data.fullName.trim() === '') {
+    console.error('[Server] Validation failed: fullName is required')
+    return { success: false, error: 'Name ist erforderlich' }
   }
 
   // Update profile with onboarding data
@@ -32,8 +42,11 @@ export async function completeOnboarding(data: OnboardingData) {
     .eq('user_id', user.id)
 
   if (updateError) {
+    console.error('[Server] Database update failed:', updateError)
     return { success: false, error: updateError.message }
   }
+
+  console.log('[Server] Onboarding completed successfully')
 
   // Revalidate paths
   revalidatePath('/')

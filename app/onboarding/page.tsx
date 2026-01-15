@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { WelcomeSection } from './components/welcome-section'
 import { DashboardPreview } from './components/dashboard-preview'
 import { ProfileSetup } from './components/profile-setup'
@@ -10,6 +11,7 @@ import { completeOnboarding, getOnboardingStatus } from '@/lib/actions/onboardin
 import type { OnboardingData } from '@/lib/types/onboarding'
 
 export default function OnboardingPage() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     fullName: '',
@@ -35,17 +37,36 @@ export default function OnboardingPage() {
   }, [])
 
   async function handleComplete() {
+    console.log('handleComplete called with data:', onboardingData)
+    
+    // Validate required fields
+    if (!onboardingData.fullName || onboardingData.fullName.trim() === '') {
+      alert('Bitte gib deinen Namen ein.')
+      return
+    }
+
     setIsLoading(true)
 
     try {
+      console.log('Calling completeOnboarding...')
       const result = await completeOnboarding(onboardingData)
+      console.log('completeOnboarding result:', result)
 
       if (result.success) {
-        // Use full page navigation to ensure middleware re-evaluates onboarding status
-        window.location.href = '/dashboard'
+        console.log('Onboarding successful, navigating to dashboard...')
+        // Wait a moment for the database to update, then navigate
+        setTimeout(() => {
+          router.push('/dashboard')
+          // Fallback to hard navigation if router doesn't work
+          setTimeout(() => {
+            if (window.location.pathname !== '/dashboard') {
+              window.location.href = '/dashboard'
+            }
+          }, 1000)
+        }, 500)
       } else {
         console.error('Failed to complete onboarding:', result.error)
-        alert('Fehler beim Speichern. Bitte versuche es erneut.')
+        alert(`Fehler beim Speichern: ${result.error || 'Unbekannter Fehler'}. Bitte versuche es erneut.`)
         setIsLoading(false)
       }
     } catch (error) {
