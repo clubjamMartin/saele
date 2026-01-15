@@ -3,6 +3,7 @@
 import { useActionState, useMemo } from 'react';
 import { createMockBooking } from './actions/mock-booking';
 import { APARTMENTS } from '@/types/booking';
+import { Card } from '@/components/ui/card';
 
 export default function MockBookingPage() {
   const [state, formAction, isPending] = useActionState(createMockBooking, null);
@@ -13,12 +14,13 @@ export default function MockBookingPage() {
   // Show success state
   if (state?.success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="w-full max-w-md space-y-6 rounded-lg border border-primary-200 bg-white p-8 shadow-lg dark:border-primary-800 dark:bg-zinc-900">
-          <div className="space-y-2 text-center">
+      <div className="flex min-h-screen items-center justify-center px-4" style={{ backgroundColor: 'var(--color-saele-background)' }}>
+        <Card variant="light" className="w-full max-w-md">
+          <div className="space-y-6 text-center">
             <div className="flex justify-center">
               <svg
-                className="h-16 w-16 text-success-500"
+                className="h-16 w-16"
+                style={{ color: 'var(--color-saele-secondary)' }}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -31,218 +33,278 @@ export default function MockBookingPage() {
                 />
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-foreground">
-              Booking Confirmed!
+            <h2 className="font-isabel text-3xl font-bold" style={{ color: 'var(--color-saele-primary)' }}>
+              Buchung bestätigt!
             </h2>
-            <p className="text-zinc-600 dark:text-zinc-400">
+            <p className="font-josefin-sans text-base" style={{ color: 'var(--color-saele-primary)' }}>
               {state.message}
             </p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-500">
-              Click the link in your email to access your dashboard and view booking details.
+            <p className="font-josefin-sans text-sm" style={{ color: 'var(--color-saele-secondary)' }}>
+              Klicke auf den Link in der E-Mail, um dein Dashboard aufzurufen und die Buchungsdetails anzuzeigen.
             </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full rounded-md px-4 py-3 font-josefin-sans font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
+              style={{
+                backgroundColor: 'var(--color-saele-primary)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-saele-primary-light)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-saele-primary)';
+              }}
+            >
+              Weitere Buchung vornehmen
+            </button>
           </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full rounded-md bg-primary-600 px-4 py-2 font-medium text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:bg-primary-500 dark:hover:bg-primary-600"
-          >
-            Make Another Booking
-          </button>
-        </div>
+        </Card>
       </div>
     );
   }
 
   // Show booking form
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
-      <div className="w-full max-w-2xl space-y-6 rounded-lg border border-primary-200 bg-white p-8 shadow-lg dark:border-primary-800 dark:bg-zinc-900">
-        <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-bold text-foreground">
-            Book Your Stay at <span className="text-primary-600">Saele</span>
-          </h1>
-          <p className="text-zinc-600 dark:text-zinc-400">
-            Fill out the form below to reserve your apartment and receive your access link.
+    <div className="flex min-h-screen items-center justify-center px-4 py-8" style={{ backgroundColor: 'var(--color-saele-background)' }}>
+      <Card variant="light" className="w-full max-w-2xl">
+        <div className="space-y-6">
+          <div className="space-y-2 text-center">
+            <h1 className="font-isabel text-4xl font-bold md:text-5xl" style={{ color: 'var(--color-saele-primary)' }}>
+              Buche deinen Aufenthalt bei Saele
+            </h1>
+            <p className="font-josefin-sans text-base" style={{ color: 'var(--color-saele-secondary)' }}>
+              Fülle das Formular unten aus, um dein Apartment zu reservieren und deinen Zugangslink zu erhalten.
+            </p>
+          </div>
+
+          <form action={formAction} className="space-y-4" suppressHydrationWarning>
+            {/* Name Field */}
+            <div className="space-y-2">
+              <label
+                htmlFor="name"
+                className="block font-josefin-sans text-sm font-medium"
+                style={{ color: 'var(--color-saele-primary)' }}
+              >
+                Vollständiger Name <span style={{ color: '#991b1b' }}>*</span>
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                disabled={isPending}
+                className="w-full rounded-md border px-4 py-2 font-josefin-sans placeholder:text-zinc-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  borderColor: 'var(--color-saele-secondary-light)',
+                  backgroundColor: 'white',
+                  color: 'var(--color-saele-primary)',
+                }}
+                placeholder="Max Mustermann"
+              />
+              {state?.errors?.name && (
+                <p className="font-josefin-sans text-sm" style={{ color: '#991b1b' }}>
+                  {state.errors.name[0]}
+                </p>
+              )}
+            </div>
+
+            {/* Email Field */}
+            <div className="space-y-2">
+              <label
+                htmlFor="email"
+                className="block font-josefin-sans text-sm font-medium"
+                style={{ color: 'var(--color-saele-primary)' }}
+              >
+                E-Mail-Adresse <span style={{ color: '#991b1b' }}>*</span>
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                disabled={isPending}
+                className="w-full rounded-md border px-4 py-2 font-josefin-sans placeholder:text-zinc-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  borderColor: 'var(--color-saele-secondary-light)',
+                  backgroundColor: 'white',
+                  color: 'var(--color-saele-primary)',
+                }}
+                placeholder="max@beispiel.com"
+              />
+              {state?.errors?.email && (
+                <p className="font-josefin-sans text-sm" style={{ color: '#991b1b' }}>
+                  {state.errors.email[0]}
+                </p>
+              )}
+            </div>
+
+            {/* Date Fields Row */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Check-In Date */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="checkIn"
+                  className="block font-josefin-sans text-sm font-medium"
+                  style={{ color: 'var(--color-saele-primary)' }}
+                >
+                  Check-In Datum <span style={{ color: '#991b1b' }}>*</span>
+                </label>
+                <input
+                  id="checkIn"
+                  name="checkIn"
+                  type="date"
+                  required
+                  disabled={isPending}
+                  min={minDate}
+                  className="w-full rounded-md border px-4 py-2 font-josefin-sans focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{
+                    borderColor: 'var(--color-saele-secondary-light)',
+                    backgroundColor: 'white',
+                    color: 'var(--color-saele-primary)',
+                  }}
+                />
+                {state?.errors?.checkIn && (
+                  <p className="font-josefin-sans text-sm" style={{ color: '#991b1b' }}>
+                    {state.errors.checkIn[0]}
+                  </p>
+                )}
+              </div>
+
+              {/* Check-Out Date */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="checkOut"
+                  className="block font-josefin-sans text-sm font-medium"
+                  style={{ color: 'var(--color-saele-primary)' }}
+                >
+                  Check-Out Datum <span style={{ color: '#991b1b' }}>*</span>
+                </label>
+                <input
+                  id="checkOut"
+                  name="checkOut"
+                  type="date"
+                  required
+                  disabled={isPending}
+                  min={minDate}
+                  className="w-full rounded-md border px-4 py-2 font-josefin-sans focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{
+                    borderColor: 'var(--color-saele-secondary-light)',
+                    backgroundColor: 'white',
+                    color: 'var(--color-saele-primary)',
+                  }}
+                />
+                {state?.errors?.checkOut && (
+                  <p className="font-josefin-sans text-sm" style={{ color: '#991b1b' }}>
+                    {state.errors.checkOut[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Guest Count and Apartment Row */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* Number of Guests */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="guestCount"
+                  className="block font-josefin-sans text-sm font-medium"
+                  style={{ color: 'var(--color-saele-primary)' }}
+                >
+                  Anzahl Gäste <span style={{ color: '#991b1b' }}>*</span>
+                </label>
+                <input
+                  id="guestCount"
+                  name="guestCount"
+                  type="number"
+                  min="1"
+                  required
+                  disabled={isPending}
+                  className="w-full rounded-md border px-4 py-2 font-josefin-sans placeholder:text-zinc-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{
+                    borderColor: 'var(--color-saele-secondary-light)',
+                    backgroundColor: 'white',
+                    color: 'var(--color-saele-primary)',
+                  }}
+                  placeholder="2"
+                />
+                {state?.errors?.guestCount && (
+                  <p className="font-josefin-sans text-sm" style={{ color: '#991b1b' }}>
+                    {state.errors.guestCount[0]}
+                  </p>
+                )}
+              </div>
+
+              {/* Apartment Selection */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="apartment"
+                  className="block font-josefin-sans text-sm font-medium"
+                  style={{ color: 'var(--color-saele-primary)' }}
+                >
+                  Apartment <span style={{ color: '#991b1b' }}>*</span>
+                </label>
+                <select
+                  id="apartment"
+                  name="apartment"
+                  required
+                  disabled={isPending}
+                  className="w-full rounded-md border px-4 py-2 font-josefin-sans focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  style={{
+                    borderColor: 'var(--color-saele-secondary-light)',
+                    backgroundColor: 'white',
+                    color: 'var(--color-saele-primary)',
+                  }}
+                >
+                  <option value="">Wähle ein Apartment</option>
+                  {APARTMENTS.map((apt) => (
+                    <option key={apt} value={apt}>
+                      {apt}
+                    </option>
+                  ))}
+                </select>
+                {state?.errors?.apartment && (
+                  <p className="font-josefin-sans text-sm" style={{ color: '#991b1b' }}>
+                    {state.errors.apartment[0]}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* General Error Message */}
+            {state && !state.success && !state.errors && (
+              <div className="rounded-md p-3 font-josefin-sans text-sm" style={{ backgroundColor: '#fee2e2', color: '#991b1b' }}>
+                {state.message}
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full rounded-md px-4 py-3 font-josefin-sans font-medium text-white transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              style={{
+                backgroundColor: isPending ? '#94A395' : 'var(--color-saele-primary)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isPending) {
+                  e.currentTarget.style.backgroundColor = 'var(--color-saele-primary-light)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isPending) {
+                  e.currentTarget.style.backgroundColor = 'var(--color-saele-primary)';
+                }
+              }}
+            >
+              {isPending ? 'Erstelle Buchung...' : 'Buchung bestätigen'}
+            </button>
+          </form>
+
+          <p className="text-center font-josefin-sans text-sm" style={{ color: 'var(--color-saele-secondary)' }}>
+            Nach der Buchung erhältst du einen magischen Link per E-Mail, um auf dein Dashboard zuzugreifen.
           </p>
         </div>
-
-        <form action={formAction} className="space-y-4" suppressHydrationWarning>
-          {/* Name Field */}
-          <div className="space-y-2">
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-foreground"
-            >
-              Full Name <span className="text-error-500">*</span>
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              disabled={isPending}
-              className="w-full rounded-md border border-zinc-300 bg-white px-4 py-2 text-foreground placeholder:text-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800"
-              placeholder="John Doe"
-            />
-            {state?.errors?.name && (
-              <p className="text-sm text-error-600 dark:text-error-400">
-                {state.errors.name[0]}
-              </p>
-            )}
-          </div>
-
-          {/* Email Field */}
-          <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-foreground"
-            >
-              Email Address <span className="text-error-500">*</span>
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              disabled={isPending}
-              className="w-full rounded-md border border-zinc-300 bg-white px-4 py-2 text-foreground placeholder:text-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800"
-              placeholder="john@example.com"
-            />
-            {state?.errors?.email && (
-              <p className="text-sm text-error-600 dark:text-error-400">
-                {state.errors.email[0]}
-              </p>
-            )}
-          </div>
-
-          {/* Date Fields Row */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Check-In Date */}
-            <div className="space-y-2">
-              <label
-                htmlFor="checkIn"
-                className="block text-sm font-medium text-foreground"
-              >
-                Check-In Date <span className="text-error-500">*</span>
-              </label>
-              <input
-                id="checkIn"
-                name="checkIn"
-                type="date"
-                required
-                disabled={isPending}
-                min={minDate}
-                className="w-full rounded-md border border-zinc-300 bg-white px-4 py-2 text-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800"
-              />
-              {state?.errors?.checkIn && (
-                <p className="text-sm text-error-600 dark:text-error-400">
-                  {state.errors.checkIn[0]}
-                </p>
-              )}
-            </div>
-
-            {/* Check-Out Date */}
-            <div className="space-y-2">
-              <label
-                htmlFor="checkOut"
-                className="block text-sm font-medium text-foreground"
-              >
-                Check-Out Date <span className="text-error-500">*</span>
-              </label>
-              <input
-                id="checkOut"
-                name="checkOut"
-                type="date"
-                required
-                disabled={isPending}
-                min={minDate}
-                className="w-full rounded-md border border-zinc-300 bg-white px-4 py-2 text-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800"
-              />
-              {state?.errors?.checkOut && (
-                <p className="text-sm text-error-600 dark:text-error-400">
-                  {state.errors.checkOut[0]}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Guest Count and Apartment Row */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            {/* Number of Guests */}
-            <div className="space-y-2">
-              <label
-                htmlFor="guestCount"
-                className="block text-sm font-medium text-foreground"
-              >
-                Number of Guests <span className="text-error-500">*</span>
-              </label>
-              <input
-                id="guestCount"
-                name="guestCount"
-                type="number"
-                min="1"
-                required
-                disabled={isPending}
-                className="w-full rounded-md border border-zinc-300 bg-white px-4 py-2 text-foreground placeholder:text-zinc-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800"
-                placeholder="2"
-              />
-              {state?.errors?.guestCount && (
-                <p className="text-sm text-error-600 dark:text-error-400">
-                  {state.errors.guestCount[0]}
-                </p>
-              )}
-            </div>
-
-            {/* Apartment Selection */}
-            <div className="space-y-2">
-              <label
-                htmlFor="apartment"
-                className="block text-sm font-medium text-foreground"
-              >
-                Apartment <span className="text-error-500">*</span>
-              </label>
-              <select
-                id="apartment"
-                name="apartment"
-                required
-                disabled={isPending}
-                className="w-full rounded-md border border-zinc-300 bg-white px-4 py-2 text-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800"
-              >
-                <option value="">Select an apartment</option>
-                {APARTMENTS.map((apt) => (
-                  <option key={apt} value={apt}>
-                    {apt}
-                  </option>
-                ))}
-              </select>
-              {state?.errors?.apartment && (
-                <p className="text-sm text-error-600 dark:text-error-400">
-                  {state.errors.apartment[0]}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* General Error Message */}
-          {state && !state.success && !state.errors && (
-            <div className="rounded-md bg-error-50 p-3 text-sm text-error-700 dark:bg-error-900/20 dark:text-error-400">
-              {state.message}
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full rounded-md bg-primary-600 px-4 py-3 font-medium text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-primary-500 dark:hover:bg-primary-600"
-          >
-            {isPending ? 'Creating Booking...' : 'Confirm Booking'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-          After booking, you'll receive a magic link via email to access your dashboard.
-        </p>
-      </div>
+      </Card>
     </div>
   );
 }
