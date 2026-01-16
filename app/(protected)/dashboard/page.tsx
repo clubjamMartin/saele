@@ -12,6 +12,10 @@ import { NewsFeed } from '@/components/dashboard/NewsFeed';
 import { WeatherWidget } from '@/components/dashboard/WeatherWidget';
 import { ServicesPanel } from '@/components/dashboard/ServicesPanel';
 import { ActionButtons } from '@/components/dashboard/ActionButtons';
+import { BackLink } from '@/components/dashboard/BackLink';
+import { BrandTitle } from '@/components/dashboard/BrandTitle';
+import { UserAvatar } from '@/components/dashboard/UserAvatar';
+import { SkierIcon } from '@/components/dashboard/SkierIcon';
 import styles from './dashboard.module.css';
 
 async function getDashboardData(userId: string): Promise<DashboardResponse> {
@@ -76,6 +80,11 @@ async function getDashboardData(userId: string): Promise<DashboardResponse> {
       bookingsResult.status === 'fulfilled' && bookingsResult.value.data
         ? bookingsResult.value.data
         : [];
+    if (bookingsResult.status === 'fulfilled') {
+      console.log('[Dashboard] Bookings query success');
+    } else if (bookingsResult.status === 'rejected') {
+      console.log('[Dashboard] Bookings query failed:', bookingsResult.reason);
+    }
 
     // Extract host contacts data
     const hostContacts =
@@ -107,6 +116,15 @@ async function getDashboardData(userId: string): Promise<DashboardResponse> {
       );
 
     const nextBooking = upcomingBookings[0] || null;
+    console.log('[Dashboard] Next booking:', nextBooking);
+    console.log('[Dashboard] Upcoming bookings:', upcomingBookings);
+    console.log('[Dashboard] All bookings (filtered):', bookings.map(b => ({
+      id: b.id,
+      status: b.status,
+      check_in: b.check_in,
+      guest_user_id: b.guest_user_id
+    })));
+    
     const countdown = nextBooking
       ? calculateCountdown({
           check_in: nextBooking.check_in!,
@@ -115,6 +133,8 @@ async function getDashboardData(userId: string): Promise<DashboardResponse> {
           room_name: nextBooking.room_name,
         })
       : null;
+
+    console.log('[Dashboard] Countdown:', countdown);
 
     // Get Instagram config
     const instagram = getInstagramConfig();
@@ -252,9 +272,22 @@ export default async function DashboardPage() {
   const dashboardData = await getDashboardData(user.id);
 
   return (
-    <main className="min-h-screen" style={{ backgroundColor: 'var(--color-saele-background)' }}>
+    <main className="min-h-screen" style={{ backgroundColor: 'var(--color-saele-secondary)' }}>
       {/* Mobile/Tablet/Desktop Responsive Grid */}
       <div className={styles.dashboardContainer}>
+        {/* Header Elements - Desktop only (1920px+) */}
+        <div className={styles.backLink}>
+          <BackLink />
+        </div>
+
+        <div className={styles.brandTitle}>
+          <BrandTitle />
+        </div>
+
+        <div className={styles.userAvatar}>
+          <UserAvatar userName={dashboardData.user.fullName} />
+        </div>
+
         {/* Welcome Section - Full width on mobile, left column on desktop */}
         <div className={styles.welcomeSection}>
           <WelcomeSection
@@ -263,34 +296,58 @@ export default async function DashboardPage() {
           />
         </div>
 
-        {/* Countdown Timer - Below welcome on mobile */}
+        {/* Countdown Timer - Below welcome on mobile, header on desktop */}
         <div className={styles.countdownSection}>
           <CountdownTimer countdown={dashboardData.countdown} />
         </div>
 
+        {/* Skier Icon - Between welcome and booking on desktop */}
+        <div className={styles.skierIcon}>
+          <SkierIcon />
+        </div>
+
         {/* Booking Card - Stacked on mobile, left column on desktop */}
         <div className={styles.bookingSection}>
+          <h2 className={styles.sectionTitle}>Buchung</h2>
           <BookingCard bookings={dashboardData.bookings} />
         </div>
 
         {/* News Feed - Center column on desktop */}
         <div className={styles.newsSection}>
+          <h2 className={styles.sectionTitle}>News</h2>
           <NewsFeed instagram={dashboardData.instagram} />
         </div>
 
         {/* Services Panel - Right column on desktop */}
         <div className={styles.servicesSection}>
+          <h2 className={styles.sectionTitle}>Services</h2>
           <ServicesPanel services={dashboardData.services} />
         </div>
 
         {/* Weather Widget - Right column on desktop */}
         <div className={styles.weatherSection}>
+          <h2 className={styles.sectionTitle}>Wetter</h2>
           <WeatherWidget weather={dashboardData.weather} />
         </div>
 
-        {/* Action Buttons - Full width at bottom */}
-        <div className={styles.actionsSection}>
-          <ActionButtons />
+        {/* Action Bar - Full width at bottom */}
+        <div className={styles.actionBar}>
+          {/* Left Group: Info, Rechnung, FAQ, Skier */}
+          <div className={styles.actionBarLeft}>
+            <div className={styles.actionsSection}>
+              <ActionButtons position="left" />
+            </div>
+            <div className={styles.actionBarSkier}>
+              <SkierIcon />
+            </div>
+          </div>
+          
+          {/* Right Group: Anruf, Chat, Mail */}
+          <div className={styles.actionBarRight}>
+            <div className={styles.actionsSection}>
+              <ActionButtons position="right" />
+            </div>
+          </div>
         </div>
       </div>
     </main>

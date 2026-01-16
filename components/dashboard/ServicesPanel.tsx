@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Plus, Maximize2 } from '@/components/ui/icons';
 import { DashboardService } from '@/types/dashboard';
 
@@ -21,126 +20,202 @@ export function ServicesPanel({ services }: ServicesPanelProps) {
     if (name.toLowerCase().includes('kühlschrank')) return '🧊';
     if (name.toLowerCase().includes('guide')) return '🗺️';
     if (name.toLowerCase().includes('kultur')) return '🎭';
+    if (name.toLowerCase().includes('unterhaltung')) return '🎬';
     return '📦';
   };
 
+  // First service gets large card, rest get small cards
+  const firstService = services[0];
+  const otherServices = services.slice(1, 4); // Show up to 3 more services
+
   return (
-    <Card variant="secondary" rounded="lg" className="relative overflow-hidden h-full">
-      {/* Expand button */}
+    <div
+      style={{
+        background: '#94A395',
+        borderRadius: '20px',
+        width: '100%',
+        maxWidth: '100%',
+        minHeight: '380px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Main expand button */}
       <button
-        className="absolute top-4 right-4 w-6 h-6 bg-[--color-saele-secondary-light] rounded-[5px] flex items-center justify-center hover:opacity-80 transition-opacity z-10"
+        style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          width: '24px',
+          height: '24px',
+          background: '#4F5F3F',
+          borderRadius: '5px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: 'none',
+          cursor: 'pointer',
+          zIndex: 10,
+        }}
         aria-label="Services erweitern"
       >
-        <Maximize2 className="w-4 h-4 text-[--color-saele-secondary]" />
+        <Maximize2 className="w-4 h-4 text-white" />
       </button>
 
-      <div className="p-6 lg:p-8 h-full flex flex-col">
-        {/* Title */}
-        <h3
-          className="text-white font-bold mb-6"
-          style={{
-            fontFamily: 'var(--font-josefin)',
-            fontSize: 'clamp(1.75rem, 3vw, 2.25rem)', // 28px - 36px
-            lineHeight: '1.3',
-            fontWeight: 700,
-          }}
-        >
-          Services
-        </h3>
-
+      <div style={{ padding: '1.5rem 1.25rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* Services List */}
-        <div className="flex flex-col gap-3 mb-6">
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
           {services.length === 0 ? (
-            <p className="text-white/70 text-center py-4">
+            <p style={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', padding: '1rem 0' }}>
               Keine Services verfügbar
             </p>
           ) : (
-            services.map((service) => (
-              <div
-                key={service.id}
-                className="bg-white rounded-[12px] overflow-hidden"
-              >
-                {/* Service Header */}
-                <div className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl" aria-hidden="true">
-                      {getServiceIcon(service.name)}
-                    </span>
-                    <div>
-                      <h4
-                        className="text-[--color-saele-secondary] font-medium"
-                        style={{
-                          fontFamily: 'var(--font-josefin)',
-                          fontSize: 'clamp(1rem, 1.2vw, 1.125rem)',
-                          fontWeight: 600,
-                        }}
-                      >
-                        {service.name}
-                      </h4>
-                      {service.status === 'active' && (
-                        <p className="text-[--color-saele-secondary]/70 text-xs">
-                          Aktiv
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Action Button */}
-                  {service.status === 'available' ? (
-                    <button
-                      onClick={() => toggleService(service.id)}
-                      className="px-4 py-2 bg-[--color-saele-secondary] text-white rounded-[8px] text-sm font-medium hover:opacity-90 transition-opacity"
+            <>
+              {/* First Service - Large Card */}
+              {firstService && (
+                <div
+                  style={{
+                    background: 'white',
+                    borderRadius: '12px',
+                    padding: '0.875rem',
+                    minHeight: '120px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.625rem' }}>
+                    <h4
                       style={{
-                        fontFamily: 'var(--font-josefin)',
-                        fontSize: '0.875rem',
+                        fontFamily: 'var(--font-isabel)',
+                        fontSize: '18px',
+                        fontWeight: 900,
+                        color: '#4F5F3F',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {firstService.name}
+                    </h4>
+                  </div>
+                  {firstService.description && (
+                    <p
+                      style={{
+                        fontFamily: 'var(--font-josefin-sans)',
+                        fontSize: '14px',
+                        fontWeight: 300,
+                        lineHeight: '1.4',
+                        color: '#4F5F3F',
+                        opacity: 0.8,
+                      }}
+                    >
+                      {firstService.description}
+                    </p>
+                  )}
+                  {firstService.status === 'available' && firstService.name.toLowerCase().includes('frühstück') && (
+                    <button
+                      onClick={() => toggleService(firstService.id)}
+                      style={{
+                        marginTop: 'auto',
+                        padding: '0.5rem 1rem',
+                        background: '#4F5F3F',
+                        color: 'white',
+                        borderRadius: '8px',
+                        fontSize: '14px',
                         fontWeight: 500,
+                        fontFamily: 'var(--font-josefin-sans)',
+                        border: 'none',
+                        cursor: 'pointer',
                       }}
                     >
                       Anfordern
                     </button>
-                  ) : (
-                    <span
-                      className="px-4 py-2 bg-[--color-saele-secondary-light] text-[--color-saele-secondary] rounded-[8px] text-sm font-medium"
-                      style={{
-                        fontFamily: 'var(--font-josefin)',
-                        fontSize: '0.875rem',
-                        fontWeight: 500,
-                      }}
-                    >
-                      Aktiv
-                    </span>
                   )}
                 </div>
+              )}
 
-                {/* Expanded Details */}
-                {expandedService === service.id && service.description && (
-                  <div className="px-4 pb-4 pt-0">
-                    <p
-                      className="text-[--color-saele-secondary]/80 text-sm"
-                      style={{
-                        fontFamily: 'var(--font-josefin)',
-                        fontSize: '0.875rem',
-                        lineHeight: '1.5',
-                        fontWeight: 300,
-                      }}
-                    >
-                      {service.description}
-                    </p>
+              {/* Other Services - Small Cards */}
+              {otherServices.map((service) => {
+                const hasButton = service.status === 'available' && service.name.toLowerCase().includes('frühstück');
+                return (
+                  <div
+                    key={service.id}
+                    style={{
+                      background: 'white',
+                      borderRadius: '12px',
+                      padding: hasButton ? '0.625rem 0.875rem' : '0.75rem 0.875rem',
+                      minHeight: hasButton ? '70px' : '50px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%' }}>
+                      <h4
+                        style={{
+                          fontFamily: 'var(--font-isabel)',
+                          fontSize: '18px',
+                          fontWeight: 900,
+                          color: '#4F5F3F',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {service.name}
+                      </h4>
+                    </div>
+                    {hasButton && (
+                      <button
+                        onClick={() => toggleService(service.id)}
+                        style={{
+                          width: '100%',
+                          padding: '0.375rem 0.75rem',
+                          background: '#4F5F3F',
+                          color: 'white',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          fontFamily: 'var(--font-josefin-sans)',
+                          border: 'none',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Anfordern
+                      </button>
+                    )}
                   </div>
-                )}
-              </div>
-            ))
+                );
+              })}
+            </>
           )}
         </div>
 
         {/* Add Service Button */}
         <button
-          className="mx-auto w-11 h-11 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors mt-auto"
+          style={{
+            margin: '0 auto',
+            width: '44px',
+            height: '44px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+          }}
           aria-label="Service hinzufügen"
         >
           <Plus className="w-8 h-8 text-white" />
         </button>
       </div>
-    </Card>
+    </div>
   );
 }

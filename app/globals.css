@@ -128,6 +128,48 @@
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
+/* Isabel Font Family */
+@font-face {
+  font-family: 'Isabel';
+  src: url('/fonts/isabel/Letritas - Isabel-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Isabel';
+  src: url('/fonts/isabel/Letritas - Isabel Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Isabel';
+  src: url('/fonts/isabel/Letritas - Isabel-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-isabel: 'Isabel', cursive;
+}
+
+/* Blush Free Font Family */
+@font-face {
+  font-family: 'Blush Free';
+  src: url('/fonts/blush-free/BlushFree-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-blush-free: 'Blush Free', cursive;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { DashboardCountdown } from '@/types/dashboard';
-import { Card } from '@/components/ui/card';
 
 interface CountdownTimerProps {
   countdown: DashboardCountdown | null;
@@ -40,67 +39,112 @@ export function CountdownTimer({ countdown }: CountdownTimerProps) {
 
   if (!countdown) {
     return (
-      <Card variant="light" rounded="lg" className="p-6">
-        <p className="text-[--color-saele-primary] text-center">
-          Keine anstehenden Buchungen
-        </p>
-      </Card>
+      <div
+        className="rounded-[15px]"
+        style={{
+          width: '100%',
+          maxWidth: '300px',
+          minHeight: '135px',
+          height: 'auto',
+          background: '#DD8A90',
+          position: 'relative',
+          overflow: 'visible',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <div
+          style={{
+            background: '#861309',
+            flex: '0 0 100px',
+            borderRadius: '15px 15px 0 0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: 'var(--font-isabel)',
+              fontWeight: 900,
+              fontSize: 'clamp(2rem, 3.3vw, 64px)',
+              color: '#FFFBF7',
+              textAlign: 'center',
+              lineHeight: '1',
+            }}
+          >
+            Saele
+          </h2>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card variant="light" rounded="lg" className="p-6 lg:p-8">
-      <div className="flex flex-col gap-4">
-        {/* Title */}
+    <div
+      className="rounded-[15px]"
+      style={{
+        width: '100%',
+        maxWidth: '300px',
+        minHeight: '135px',
+        height: 'auto',
+        background: '#DD8A90',
+        position: 'relative',
+        overflow: 'visible',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Red overlay with Saele brand */}
+      <div
+        style={{
+          background: '#861309',
+          flex: '0 0 100px',
+          borderRadius: '15px 15px 0 0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <h2
-          className="text-[--color-saele-primary] font-normal text-center"
           style={{
-            fontFamily: 'var(--font-josefin)',
-            fontSize: 'clamp(1.75rem, 3vw, 2.25rem)', // 28px - 36px
-            lineHeight: '1.3',
-            fontWeight: 400,
+            fontFamily: 'var(--font-isabel)',
+            fontWeight: 900,
+            fontSize: 'clamp(2rem, 3.3vw, 64px)',
+            color: '#FFFBF7',
+            textAlign: 'center',
+            lineHeight: '1',
           }}
         >
-          Nicht mehr lang!
+          Saele
         </h2>
-
-        {/* Message */}
-        <p
-          className="text-[--color-saele-primary] text-center font-light"
-          style={{
-            fontFamily: 'var(--font-josefin)',
-            fontSize: 'clamp(1rem, 1.2vw, 1.25rem)', // 16px - 20px
-            lineHeight: '1.5',
-            fontWeight: 300,
-          }}
-        >
-          Hedwig & Christina freuen sich auf euch!
-          <br />
-          Die Wohnungen stehen ab 14 Uhr bereit.
-        </p>
-
-        {/* Countdown Display */}
-        <div className="bg-[--color-saele-primary] rounded-[15px] p-6 lg:p-8">
-          <div
-            className="text-white text-center font-medium tabular-nums"
-            style={{
-              fontFamily: 'var(--font-josefin)',
-              fontSize: 'clamp(1.375rem, 2.5vw, 2.125rem)', // 22px - 34px
-              lineHeight: '1.4',
-              fontWeight: 400,
-            }}
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {timeLeft.days.toString().padStart(2, '0')} :{' '}
-            {timeLeft.hours.toString().padStart(2, '0')} :{' '}
-            {timeLeft.minutes.toString().padStart(2, '0')}
-          </div>
-          <div className="text-white text-center text-sm mt-2 opacity-90">
-            Tage : Stunden : Minuten
-          </div>
-        </div>
       </div>
-    </Card>
+
+      {/* Countdown digits - wraps naturally */}
+      <div
+        style={{
+          flex: '1',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0.5rem',
+          minHeight: '35px',
+        }}
+      >
+        <span
+          style={{
+            fontFamily: 'var(--font-josefin-sans)',
+            fontWeight: 500,
+            fontSize: 'clamp(1rem, 1.3vw, 25px)',
+            color: '#861309',
+            textAlign: 'center',
+          }}
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {timeLeft.days.toString().padStart(2, '0')} : {timeLeft.hours.toString().padStart(2, '0')} : {timeLeft.minutes.toString().padStart(2, '0')}
+        </span>
+      </div>
+    </div>
   );
 }

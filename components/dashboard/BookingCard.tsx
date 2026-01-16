@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/card';
 import { DashboardBooking } from '@/types/dashboard';
 import { Maximize2 } from '@/components/ui/icons';
 
@@ -11,9 +10,32 @@ export function BookingCard({ bookings }: BookingCardProps) {
 
   if (!nextBooking) {
     return (
-      <Card variant="primary" rounded="lg" className="p-6">
-        <h3 className="text-white text-center font-medium">Keine Buchungen</h3>
-      </Card>
+      <div
+        style={{
+          background: '#DD8A90',
+          borderRadius: '20px',
+          width: '100%',
+          maxWidth: '100%',
+          minHeight: '220px',
+          position: 'relative',
+          padding: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <h3
+          style={{
+            fontFamily: 'var(--font-josefin-sans)',
+            fontSize: '20px',
+            fontWeight: 600,
+            color: '#861309',
+            textAlign: 'center',
+          }}
+        >
+          Keine Buchungen
+        </h3>
+      </div>
     );
   }
 
@@ -42,137 +64,172 @@ export function BookingCard({ bookings }: BookingCardProps) {
     }).format(date);
   };
 
-  return (
-    <Card variant="light" rounded="lg" className="relative overflow-hidden">
-      {/* Expand button */}
-      <button
-        className="absolute top-4 right-4 w-6 h-6 bg-[--color-saele-primary] rounded-[5px] flex items-center justify-center hover:opacity-80 transition-opacity z-10"
-        aria-label="Buchungsdetails erweitern"
-      >
-        <Maximize2 className="w-4 h-4 text-white" />
-      </button>
+  const daysUntilCheckIn = Math.ceil((checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-      <div className="p-6 lg:p-8">
-        {/* Title */}
+  return (
+    <div
+      style={{
+        background: '#DD8A90',
+        borderRadius: '20px',
+        width: '100%',
+        maxWidth: '100%',
+        minHeight: '140px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Dark red header with room name */}
+      <div
+        style={{
+          background: '#861309',
+          padding: '0.75rem 1rem',
+          position: 'relative',
+        }}
+      >
         <h3
-          className="text-[--color-saele-primary] font-normal mb-6"
           style={{
-            fontFamily: 'var(--font-josefin)',
-            fontSize: 'clamp(1.75rem, 3vw, 2.125rem)', // 28px - 34px
+            fontFamily: 'var(--font-isabel)',
+            fontSize: '18px',
+            fontWeight: 700,
+            color: '#FFFBF7',
+            textAlign: 'center',
             lineHeight: '1.3',
-            fontWeight: 400,
+            margin: 0,
           }}
         >
-          Reise
+          {nextBooking.roomName} freut sich auf euch!
         </h3>
+      </div>
 
-        {/* Dates Section */}
-        <div className="flex items-start gap-4 mb-6">
-          <div className="flex-1">
-            <div className="flex flex-col gap-4">
-              {/* Anreise */}
-              <div className="flex items-baseline gap-3">
-                <span
-                  className="text-[--color-saele-primary] font-semibold min-w-[80px]"
-                  style={{
-                    fontFamily: 'var(--font-josefin)',
-                    fontSize: 'clamp(1rem, 1.2vw, 1.25rem)',
-                    fontWeight: 600,
-                  }}
-                >
-                  Anreise
-                </span>
-                <span
-                  className="text-[--color-saele-primary] font-light hidden md:inline"
-                  style={{
-                    fontFamily: 'var(--font-josefin)',
-                    fontSize: 'clamp(1rem, 1.2vw, 1.25rem)',
-                    fontWeight: 300,
-                  }}
-                >
-                  {formatDate(checkInDate)}
-                </span>
-                <span
-                  className="text-[--color-saele-primary] font-light md:hidden"
-                  style={{
-                    fontFamily: 'var(--font-josefin)',
-                    fontSize: '1rem',
-                    fontWeight: 300,
-                  }}
-                >
-                  {formatDateShort(checkInDate)}
-                </span>
-              </div>
+      {/* Expand button */}
+      <button
+        aria-label="Buchungsdetails erweitern"
+        style={{
+          position: 'absolute',
+          top: '12px',
+          right: '12px',
+          width: '24px',
+          height: '24px',
+          background: '#FFFBF7',
+          borderRadius: '5px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: 'none',
+          cursor: 'pointer',
+          zIndex: 10,
+        }}
+      >
+        <Maximize2 className="w-4 h-4 text-[#861309]" />
+      </button>
 
-              {/* Vertical separator line */}
-              <div className="w-[1px] h-12 bg-[--color-saele-primary]/30 ml-10" />
+      {/* Content area */}
+      <div
+        style={{
+          padding: '0.875rem 1rem',
+          display: 'flex',
+          gap: '0.625rem',
+        }}
+      >
 
-              {/* Abreise */}
-              <div className="flex items-baseline gap-3">
-                <span
-                  className="text-[--color-saele-primary] font-semibold min-w-[80px]"
-                  style={{
-                    fontFamily: 'var(--font-josefin)',
-                    fontSize: 'clamp(1rem, 1.2vw, 1.25rem)',
-                    fontWeight: 600,
-                  }}
-                >
-                  Abreise
-                </span>
-                <span
-                  className="text-[--color-saele-primary] font-light hidden md:inline"
-                  style={{
-                    fontFamily: 'var(--font-josefin)',
-                    fontSize: 'clamp(1rem, 1.2vw, 1.25rem)',
-                    fontWeight: 300,
-                  }}
-                >
-                  {formatDate(checkOutDate)}
-                </span>
-                <span
-                  className="text-[--color-saele-primary] font-light md:hidden"
-                  style={{
-                    fontFamily: 'var(--font-josefin)',
-                    fontSize: '1rem',
-                    fontWeight: 300,
-                  }}
-                >
-                  {formatDateShort(checkOutDate)}
-                </span>
-              </div>
-            </div>
+      {/* Vertical Progress Bar */}
+      <div
+        style={{
+          width: '5px',
+          minHeight: '70px',
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '3px',
+          overflow: 'hidden',
+          position: 'relative',
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            width: '100%',
+            height: `${progress}%`,
+            background: '#861309',
+            borderRadius: '3px',
+            transition: 'height 0.3s ease',
+          }}
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Reisefortschritt"
+        />
+      </div>
+
+      {/* Content */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {/* Dates section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {/* Anreise */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-josefin-sans)',
+                fontSize: '18px',
+                fontWeight: 600,
+                color: '#861309',
+              }}
+            >
+              Anreise
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-josefin-sans)',
+                fontSize: '16px',
+                fontWeight: 300,
+                color: '#861309',
+              }}
+            >
+              {formatDate(checkInDate)}
+            </span>
           </div>
 
-          {/* Progress Bar */}
-          <div className="hidden lg:flex flex-col items-center gap-2">
-            <div className="w-2 h-32 bg-white/30 rounded-full overflow-hidden">
-              <div
-                className="w-full bg-[--color-saele-primary] rounded-full transition-all duration-300"
-                style={{ height: `${progress}%` }}
-                role="progressbar"
-                aria-valuenow={progress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label="Reisefortschritt"
-              />
-            </div>
+          {/* Abreise */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.1rem' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-josefin-sans)',
+                fontSize: '18px',
+                fontWeight: 600,
+                color: '#861309',
+              }}
+            >
+              Abreise
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-josefin-sans)',
+                fontSize: '16px',
+                fontWeight: 300,
+                color: '#861309',
+              }}
+            >
+              {formatDate(checkOutDate)}
+            </span>
           </div>
         </div>
 
-        {/* Additional Info */}
+        {/* Description Text */}
         <p
-          className="text-[--color-saele-primary] font-light"
           style={{
-            fontFamily: 'var(--font-josefin)',
-            fontSize: 'clamp(0.875rem, 1vw, 1rem)',
-            lineHeight: '1.5',
+            fontFamily: 'var(--font-josefin-sans)',
+            fontSize: '13px',
             fontWeight: 300,
+            lineHeight: '1.4',
+            color: '#861309',
+            marginTop: '0.25rem',
           }}
         >
-          Wir freuen uns euch in {Math.ceil((checkInDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))} Tagen begrüßen zu dürfen.
-          Bitte beachtet, dass die Wohnungen ab 14 Uhr fertig sind. Wir freuen uns auf euch!
+          Wir freuen uns euch in {daysUntilCheckIn} Tagen begrüßen zu dürfen.
+          Bitte beachtet, dass die Wohnungen ab 14 Uhr fertig sind.
+          Wir freuen uns auf euch!
         </p>
       </div>
-    </Card>
+      </div>
+    </div>
   );
 }
