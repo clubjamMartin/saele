@@ -22,7 +22,7 @@ const josefinSans = Josefin_Sans({
 
 export const metadata: Metadata = {
   title: "Saele - Dein Zuhause im Bregenzerwald",
-  description: "Wir freuen uns sehr, dich bei uns in Bezaubegrüßen zu dürfen!",
+  description: "Wir freuen uns sehr, dich bei uns in Bezau begrüßen zu dürfen!",
 };
 
 export default function RootLayout({
