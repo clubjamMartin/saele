@@ -106,12 +106,13 @@ export function ServicesPanel({ services }: ServicesPanelProps) {
                         lineHeight: '1.4',
                         color: '#4F5F3F',
                         opacity: 0.8,
+                        textAlign: 'center',
                       }}
                     >
                       {firstService.description}
                     </p>
                   )}
-                  {firstService.status === 'available' && firstService.name.toLowerCase().includes('frühstück') && (
+                  {firstService.status === 'available' && firstService.name.toLowerCase().includes('kühlschrank') && (
                     <button
                       onClick={() => toggleService(firstService.id)}
                       style={{
@@ -125,6 +126,7 @@ export function ServicesPanel({ services }: ServicesPanelProps) {
                         fontFamily: 'var(--font-josefin-sans)',
                         border: 'none',
                         cursor: 'pointer',
+                        alignSelf: 'center',
                       }}
                     >
                       Anfordern
@@ -135,7 +137,7 @@ export function ServicesPanel({ services }: ServicesPanelProps) {
 
               {/* Other Services - Small Cards */}
               {otherServices.map((service) => {
-                const hasButton = service.status === 'available' && service.name.toLowerCase().includes('frühstück');
+                const hasButton = service.status === 'available' && service.name.toLowerCase().includes('kühlschrank');
                 return (
                   <div
                     key={service.id}
