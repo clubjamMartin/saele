@@ -101,8 +101,9 @@ export function WeatherWidget({ weather }: WeatherWidgetProps) {
     }).format(date);
   };
 
-  // Get first 2 forecast days for display (per Figma)
-  const displayForecast = weather.forecast.slice(0, 2);
+  // Get tomorrow and day after tomorrow for display
+  // Skip today (index 0) since current conditions are shown at top
+  const displayForecast = weather.forecast.slice(1, 3);
 
   return (
     <div
