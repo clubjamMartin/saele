@@ -21,8 +21,8 @@ const josefinSans = Josefin_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Saele - Deine Urlaubsplattform",
-  description: "Entdecke die perfekte Reiseplanung mit Saele",
+  title: "Saele - Dein Zuhause im Bregenzerwald",
+  description: "Wir freuen uns sehr, dich bei uns in Bezaubegrüßen zu dürfen!",
 };
 
 export default function RootLayout({
