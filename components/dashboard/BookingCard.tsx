@@ -26,7 +26,7 @@ export function BookingCard({ bookings }: BookingCardProps) {
       >
         <h3
           style={{
-            fontFamily: 'var(--font-josefin-sans)',
+            fontFamily: 'var(--font-isabel)',
             fontSize: '20px',
             fontWeight: 600,
             color: '#861309',

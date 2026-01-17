@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       
       // Link any bookings with this email to the authenticated user
       // This handles mock bookings created before user authentication
-      // CRITICAL: Wait for this operation to complete before proceeding
+      // RLS policy "users_can_claim_own_bookings" allows authenticated users to claim their bookings
       if (data.user.email) {
         const { data: linkedBookings, error: linkBookingsError } = await supabase
           .from('bookings')

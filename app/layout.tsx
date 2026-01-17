@@ -38,7 +38,6 @@ export default function RootLayout({
           href="https://fonts.cdnfonts.com/css/blush-free"
           rel="stylesheet"
         />
-        <link href="https://fonts.cdnfonts.com/css/isabel" rel="stylesheet" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${josefinSans.variable} antialiased`}
