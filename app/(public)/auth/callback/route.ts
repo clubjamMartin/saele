@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (!error && data.user) {
       // Ensure profile exists (create if missing)
       // This handles profile creation for hosted Supabase where triggers on auth.users are restricted
-      const { data: profile, error: profileError } = await supabase
+      let { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('user_id, onboarding_completed_at')
         .eq('user_id', data.user.id)
@@ -41,20 +41,34 @@ export async function GET(request: NextRequest) {
           console.error('Error creating profile:', insertError);
           // Continue anyway - profile might be created by trigger in local dev
         }
+        
+        // Refetch profile after creation to get the latest state
+        const refetch = await supabase
+          .from('profiles')
+          .select('user_id, onboarding_completed_at')
+          .eq('user_id', data.user.id)
+          .single();
+        
+        profile = refetch.data;
+        profileError = refetch.error;
       }
       
       // Link any bookings with this email to the authenticated user
       // This handles mock bookings created before user authentication
+      // CRITICAL: Wait for this operation to complete before proceeding
       if (data.user.email) {
-        const { error: linkBookingsError } = await supabase
+        const { data: linkedBookings, error: linkBookingsError } = await supabase
           .from('bookings')
           .update({ guest_user_id: data.user.id })
           .eq('email', data.user.email)
-          .is('guest_user_id', null);
+          .is('guest_user_id', null)
+          .select();
         
         if (linkBookingsError) {
           console.error('Error linking bookings to user:', linkBookingsError);
           // Non-critical error, continue with authentication
+        } else if (linkedBookings && linkedBookings.length > 0) {
+          console.log(`Successfully linked ${linkedBookings.length} booking(s) to user ${data.user.id}`);
         }
       }
       
