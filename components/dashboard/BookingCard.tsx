@@ -28,7 +28,7 @@ export function BookingCard({ bookings }: BookingCardProps) {
           style={{
             fontFamily: 'var(--font-isabel)',
             fontSize: '20px',
-            fontWeight: 600,
+            fontWeight: 900,
             color: '#861309',
             textAlign: 'center',
           }}
@@ -90,7 +90,7 @@ export function BookingCard({ bookings }: BookingCardProps) {
           style={{
             fontFamily: 'var(--font-isabel)',
             fontSize: '18px',
-            fontWeight: 700,
+            fontWeight: 900,
             color: '#FFFBF7',
             textAlign: 'center',
             lineHeight: '1.3',
